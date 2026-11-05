@@ -6,7 +6,7 @@
 <title>Ольга Охлопкова — психолог в Якутске</title>
 <meta name="description" content="Ольга Охлопкова — психолог в Якутске. Индивидуальные консультации очно и онлайн: тревога, стресс, родительство, жизненные перемены. От 3000 ₽ за сеанс.">
 <meta name="theme-color" content="#faf6f1">
-<meta property="og:type" content="website"><meta property="og:locale" content="ru_RU">
+<meta property="og:type" content="website"><meta property="og:url" content="https://steelykt.github.io/psychologist-site/"><meta property="og:image" content="https://steelykt.github.io/psychologist-site/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta property="og:locale" content="ru_RU">
 <meta property="og:title" content="Ольга Охлопкова — психолог в Якутске">
 <meta property="og:description" content="Бережная психологическая поддержка очно и онлайн. Запись в Telegram и WhatsApp.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌿%3C/text%3E%3C/svg%3E">
@@ -25,7 +25,7 @@ h1,h2,h3{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;line-hei
 h1{font-size:clamp(2.6rem,8vw,5rem)}h2{font-size:clamp(2rem,5vw,3rem);margin-bottom:.6em}h3{font-size:1.5rem}
 a{color:inherit}
 .w{max-width:1040px;margin:0 auto;padding:0 22px}
-section{padding:72px 0}
+:root{--sec:72px}@media(max-width:700px){:root{--sec:52px}}section{padding:var(--sec) 0}section.w{padding-top:var(--sec);padding-bottom:var(--sec)}section.w.hero{padding-top:40px;padding-bottom:var(--sec)}
 nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
 nav .w{display:flex;align-items:center;justify-content:space-between;height:60px;gap:12px}
 nav b{font-family:"Cormorant Garamond",Georgia,serif;font-size:1.3rem}
@@ -72,14 +72,16 @@ footer{padding:40px 0;color:var(--mute);font-size:.88rem;border-top:1px solid va
 .ph img{position:relative;display:block;width:62%;height:auto;aspect-ratio:4/5;object-fit:cover;border-radius:999px 999px 24px 24px;border:5px solid var(--surf);box-shadow:0 28px 50px -26px rgba(0,0,0,.4)}
 .bx{margin-top:26px;text-align:center}.bl{font:600 1.7rem/1.2 "Cormorant Garamond",Georgia,serif;min-height:1.3em}.bn{font:600 2.4rem/1 "Cormorant Garamond",Georgia,serif;color:var(--acc);min-height:1em;margin:2px 0}.bs{color:var(--mute);font-size:.97rem;margin:6px 0 16px;min-height:1.4em}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}.chips span{background:var(--soft);border-radius:99px;padding:7px 15px;font-size:.92rem}.c4{grid-template-columns:repeat(4,1fr)}@media(max-width:1000px){.c4{grid-template-columns:repeat(2,1fr)}}@media(max-width:560px){.c4{grid-template-columns:1fr}.stats{gap:16px}.stats b{font-size:2.1rem}}@media(max-width:800px){.ph{width:88%}}
+.ic svg{width:24px;height:24px;stroke:var(--acc);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.skip{position:absolute;left:-999px;top:8px}.skip:focus{left:12px;z-index:50;background:var(--surf);padding:10px 14px;border-radius:8px}.mn{display:none}.mp{position:absolute;left:0;right:0;top:100%;background:var(--bg);border-bottom:1px solid var(--line);padding:6px 22px 14px}.mp[hidden]{display:none}.mp a{display:block;padding:14px 0;text-decoration:none;font-weight:700;border-top:1px solid var(--line)}.mp a:first-child{border-top:0}@media(max-width:700px){.mn{display:inline-block}nav .row .btn{display:none}}@media(min-width:701px){.mp{display:none!important}}
 .rv{opacity:0;transform:translateY(24px);transition:.7s}.rv.in{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto}.rv{opacity:1;transform:none}}
 </style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"Ольга Охлопкова — психолог","description":"Индивидуальные психологические консультации очно и онлайн","url":"https://steelykt.github.io/psychologist-site/","image":"https://steelykt.github.io/psychologist-site/og.jpg","areaServed":"Якутск","address":{"@type":"PostalAddress","addressLocality":"Якутск","addressCountry":"RU"},"priceRange":"от 3000 ₽","sameAs":["https://t.me/olyabud","https://www.instagram.com/olga.okhlopkova.bud"]}</script>
 </head>
 <body>
-<nav><div class="w"><b>Ольга Охлопкова</b><div class="l"><a href="#about">Обо мне</a><a href="#help">С чем помогаю</a><a href="#mood">Самопроверка</a><a href="#price">Стоимость</a><a href="#path">Путь</a><a href="#faq">Вопросы</a></div><div class="row"><button class="tg" id="tg" aria-label="Сменить тему">◐</button><a class="btn" href="#contact" style="padding:12px 26px;min-height:48px">Записаться</a></div></div></nav>
+<a class="skip" href="#main">К содержимому</a><nav><div class="w"><b>Ольга Охлопкова</b><div class="l"><a href="#about">Обо мне</a><a href="#help">С чем помогаю</a><a href="#mood">Самопроверка</a><a href="#price">Стоимость</a><a href="#path">Путь</a><a href="#faq">Вопросы</a></div><div class="row"><button class="tg mn" id="mn" type="button" aria-label="Меню" aria-expanded="false" aria-controls="mp">☰</button><button class="tg" id="tg" aria-label="Сменить тему">◐</button><a class="btn" href="#contact" style="padding:12px 26px;min-height:48px">Записаться</a></div></div><div class="mp" id="mp" hidden><a href="#about">Обо мне</a><a href="#help">С чем помогаю</a><a href="#mood">Самопроверка</a><a href="#price">Стоимость</a><a href="#path">Путь</a><a href="#faq">Вопросы</a></div></nav>
 
-<main>
+<main id="main">
 <section class="w hero">
 <div>
 <div class="eyebrow">Психолог · Якутск · онлайн и очно</div>
@@ -100,16 +102,16 @@ footer{padding:40px 0;color:var(--mute);font-size:.88rem;border-top:1px solid va
 <section id="help" class="w rv">
 <div class="eyebrow">С чем помогаю</div><h2>Запросы, с которыми приходят</h2>
 <div class="cards c4">
-<div class="card"><div class="ic">🌿</div><h3>Тревога и стресс</h3><p>Научимся замечать напряжение и возвращать себе спокойствие.</p></div>
-<div class="card"><div class="ic">🤱</div><h3>Родительство</h3><p>Выгорание, чувство вины, отношения с ребёнком и в паре.</p></div>
-<div class="card"><div class="ic">🧭</div><h3>Жизненные перемены</h3><p>Смена работы, роли, города, поиск своего направления.</p></div>
-<div class="card"><div class="ic">💬</div><h3>Самооценка</h3><p>Опора на себя и границы в отношениях.</p></div>
+<div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14"/><path d="M5 19c3-4 6-6 9-8"/></svg></div><h3>Тревога и стресс</h3><p>Научимся замечать напряжение и возвращать себе спокойствие.</p></div>
+<div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.600-7 10-7 10z"/></svg></div><h3>Родительство</h3><p>Выгорание, чувство вины, отношения с ребёнком и в паре.</p></div>
+<div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.500 8.500l-2 5-5 2 2-5z"/></svg></div><h3>Жизненные перемены</h3><p>Смена работы, роли, города, поиск своего направления.</p></div>
+<div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg></div><h3>Самооценка</h3><p>Опора на себя и границы в отношениях.</p></div>
 </div></section>
 
 <section id="mood" class="alt"><div class="w rv"><div class="eyebrow">Самопроверка · 1 минута</div><h2>Что вам сейчас важнее всего?</h2><p style="color:var(--mute);max-width:36em">Пять вопросов без регистрации. Ответы нигде не сохраняются. Это не диагностика, а повод задуматься.</p><div class="qz" id="qz" aria-live="polite"></div></div></section>
 <section id="steps" class="w rv"><div class="eyebrow">Как проходит работа</div><h2>Три простых шага</h2><div class="cards"><div class="card"><div class="ic">1</div><h3>Вы пишете</h3><p>Коротко расскажите, с чем хотите прийти. Подробности не нужны.</p></div><div class="card"><div class="ic">2</div><h3>Знакомимся</h3><p>Обсудим запрос, формат (очно или онлайн) и удобное время.</p></div><div class="card"><div class="ic">3</div><h3>Работаем</h3><p>Встречи в вашем темпе, бережно и конфиденциально.</p></div></div></section>
-<section id="price" class="w rv"><div class="eyebrow">Стоимость</div><h2>Форматы и стоимость</h2><div class="cards"><div class="card"><div class="ic">💬</div><h3>Индивидуальная консультация</h3><div class="price" style="margin:.5em 0">от 3000 ₽</div><p>За один сеанс. Очно в Якутске или онлайн. Точный формат и расписание обсудим при знакомстве.</p><a class="btn" href="#contact" style="margin-top:20px">Записаться</a></div></div></section>
-<section id="principles" class="alt"><div class="w rv"><div class="eyebrow">Принципы работы</div><h2>На чём строится наша работа</h2><div class="cards c4"><div class="card"><div class="ic">🔒</div><h3>Конфиденциальность</h3><p>Всё, что обсуждается на встречах, остаётся между нами.</p></div><div class="card"><div class="ic">🤝</div><h3>Без осуждения</h3><p>Можно говорить о том, о чём страшно или неловко.</p></div><div class="card"><div class="ic">🌱</div><h3>Ваш темп</h3><p>Идём так быстро, как вам комфортно, и вместе ставим цели.</p></div><div class="card"><div class="ic">🧭</div><h3>Уважение к границам</h3><p>Вы решаете, о чём говорить и что менять в своей жизни.</p></div></div></div></section>
+<section id="price" class="w rv"><div class="eyebrow">Стоимость</div><h2>Форматы и стоимость</h2><div class="cards"><div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg></div><h3>Индивидуальная консультация</h3><div class="price" style="margin:.5em 0">от 3000 ₽</div><p>За один сеанс. Очно в Якутске или онлайн. Точный формат и расписание обсудим при знакомстве.</p><a class="btn" href="#contact" style="margin-top:20px">Записаться</a></div></div></section>
+<section id="principles" class="alt"><div class="w rv"><div class="eyebrow">Принципы работы</div><h2>На чём строится наша работа</h2><div class="cards c4"><div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div><h3>Конфиденциальность</h3><p>Всё, что обсуждается на встречах, остаётся между нами.</p></div><div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.500 14a4.500 4.500 0 0 0 7 0"/><path d="M9 9.500h.01M15 9.500h.01"/></svg></div><h3>Без осуждения</h3><p>Можно говорить о том, о чём страшно или неловко.</p></div><div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h3>Ваш темп</h3><p>Идём так быстро, как вам комфортно, и вместе ставим цели.</p></div><div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z"/></svg></div><h3>Уважение к границам</h3><p>Вы решаете, о чём говорить и что менять в своей жизни.</p></div></div></div></section>
 
 <section id="path" class="w rv">
 <div class="eyebrow">Путь</div><h2>Образование и опыт</h2>
@@ -135,12 +137,13 @@ footer{padding:40px 0;color:var(--mute);font-size:.88rem;border-top:1px solid va
 <div class="row" style="justify-content:center"><a class="btn" href="https://t.me/olyabud" rel="noopener">Написать в Telegram</a><a class="btn o" href="https://wa.me/79644156843" rel="noopener">WhatsApp</a><a class="btn o" href="https://www.instagram.com/olga.okhlopkova.bud" rel="noopener">Instagram</a></div>
 </section>
 </main>
-<footer><div class="w">© Ольга Охлопкова. Психолог, Якутск. Сайт не заменяет медицинскую помощь; в кризисной ситуации обратитесь в экстренные службы.</div></footer>
+<footer><div class="w">© Ольга Охлопкова. Психолог, Якутск. Сайт не заменяет медицинскую помощь; в кризисной ситуации звоните 112 или обратитесь в местную службу экстренной психологической помощи.</div></footer>
 
 <div class="mb"><a class="btn" href="https://t.me/olyabud" rel="noopener">Telegram</a><a class="btn o" href="https://wa.me/79644156843" rel="noopener">WhatsApp</a></div>
 <script>
-var R=document.documentElement;
-document.getElementById('tg').onclick=function(){var d=R.getAttribute('data-theme')==='dark'||(!R.getAttribute('data-theme')&&matchMedia('(prefers-color-scheme:dark)').matches);R.setAttribute('data-theme',d?'light':'dark')};
+var HT=document.documentElement;
+try{var sv=localStorage.getItem('theme');if(sv==='dark'||sv==='light')HT.setAttribute('data-theme',sv)}catch(e){}
+document.getElementById('tg').onclick=function(){var cur=HT.getAttribute('data-theme');var dark=cur?cur==='dark':matchMedia('(prefers-color-scheme:dark)').matches;var next=dark?'light':'dark';HT.setAttribute('data-theme',next);try{localStorage.setItem('theme',next)}catch(e){}};
 var Q=[['Что чаще всего забирает ваши силы?',[['Постоянная усталость и нехватка отдыха',0],['Обязательства перед другими',1],['Ощущение, что приходится справляться в одиночку',2],['Мысли, в которых трудно разобраться',3]]],
 ['Как вы реагируете, когда вас о чём-то просят?',[['Соглашаюсь, даже когда нет сил',1],['Тяну время и откладываю решение',3],['Беру на себя, потому что больше некому',2],['Делаю, а потом долго восстанавливаюсь',0]]],
 ['О чём вы чаще всего думаете перед сном?',[['Одни и те же вопросы без ответа',3],['Разговоры, в которых не удалось сказать «нет»',1],['Список дел, до которых не дошли руки',0],['Что рядом нет человека, с кем можно поделиться',2]]],
@@ -157,6 +160,11 @@ var PH=[['Вдох',4],['Задержите дыхание',2],['Выдох',6]]
 function phase(){var p=PH[pi];bl.textContent=p[0];lf=p[1];bn.textContent=lf;if(pi===0){ph.style.setProperty('--d','4s');ph.classList.add('in')}if(pi===2){ph.style.setProperty('--d','6s');ph.classList.remove('in')}bs.textContent='Цикл '+(ci+1)+' из '+N}
 function stop(done){clearInterval(tm);tm=null;ph.style.setProperty('--d','3s');ph.classList.remove('in');bn.textContent='';bg.textContent=done?'Подышать ещё раз':'Подышать вместе';bl.textContent=done?'Хорошо. Как вы себя чувствуете?':'Хотите выдохнуть?';bs.textContent=done?'Если хочется разобраться глубже, пройдите самопроверку ниже.':'Минута дыхания: вдох 4 секунды, пауза, выдох 6'}
 bg.onclick=function(){if(tm){stop(false);return}ci=0;pi=0;bg.textContent='Остановить';phase();tm=setInterval(function(){lf--;if(lf>0){bn.textContent=lf;return}pi++;if(pi>2){pi=0;ci++;if(ci>=N){stop(true);return}}phase()},1000)};
+var mn=document.getElementById('mn'),mp=document.getElementById('mp');
+function cm(){mp.hidden=true;mn.setAttribute('aria-expanded','false')}
+mn.onclick=function(){var o=mp.hidden;mp.hidden=!o;mn.setAttribute('aria-expanded',String(o))};
+mp.addEventListener('click',function(e){if(e.target.tagName==='A')cm()});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')cm()});
 var io=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting)x.target.classList.add('in')})},{threshold:.12});
 document.querySelectorAll('.rv').forEach(function(e){io.observe(e)});
 </script>
