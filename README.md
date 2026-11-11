@@ -84,13 +84,6 @@ psychologist-site/
 
 Подробности: [контент](docs/CONTENT.md) · [дизайн](docs/DESIGN.md) · [передача заказчику](docs/HANDOVER.md) · [история версий](CHANGELOG.md).
 
-## Запуск и публикация
-
-Сборка не нужна. Откройте `index.html` в браузере.
-
-**GitHub Pages:** Settings → Pages → Source: *Deploy from a branch* → `main` → `/ (root)`.
-**Свой домен:** впишите его в Custom domain и добавьте у регистратора четыре A-записи (`185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`) и CNAME для `www`.
-
 ## Что менять
 
 Все тексты, цены и контакты перечислены в [docs/CONTENT.md](docs/CONTENT.md). Цвета и отступы лежат в блоке `:root` в `assets/css/styles.css`. Фото заменяются файлами в `assets/img/` (имена сохраните).
