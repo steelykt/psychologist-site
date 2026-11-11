@@ -56,10 +56,10 @@
 ## Скриншоты
 
 <div style="display: flex; gap: 150px; justify-content: flex-start; margin-bottom: 15px;">
-  <img src="docs/screenshots/desktop1.jpg" alt="Фото 1" style="width: 640px; height: auto;">
-  <img src="docs/screenshots/desktop2.jpg" alt="Фото 2" style="width: 640px; height: auto;">
+  <img src="docs/screenshots/desktop1.jpg" alt="Фото 1" style="width: 500px; height: auto;">
+  <img src="docs/screenshots/desktop2.jpg" alt="Фото 2" style="width: 500px; height: auto;">
 </div>
-<div style="display: flex; gap: 150; justify-content: flex-start; align-items: flex-start; margin-bottom: 15;">
+<div style="display: flex; gap: 150; align-items: flex-start; margin-bottom: 15;">
   <img src="docs/screenshots/mobile1.jpg" alt="Фото 1" style="width: 320px; height: auto;">
   <img src="docs/screenshots/mobile2.jpg" alt="Фото 2" style="width: 320px; height: auto;">
 </div>
