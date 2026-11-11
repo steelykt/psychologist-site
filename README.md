@@ -55,13 +55,10 @@
 
 ## Скриншоты
 
-<div style="display: flex; gap: 300px; justify-content: flex-start; margin-bottom: 15px;">
-  <img src="docs/screenshots/desktop1.jpg" alt="Фото 1" style="width: 400px; height: auto;">
-  <img src="docs/screenshots/desktop2.jpg" alt="Фото 2" style="width: 400px; height: auto;">
-</div>
-<div style="display: flex; gap: 200px; align-items: flex-start; margin-bottom: 15;">
-  <img src="docs/screenshots/mobile1.jpg" alt="Фото 1" style="width: 200px; height: auto;">
-  <img src="docs/screenshots/mobile2.jpg" alt="Фото 2" style="width: 200px; height: auto;">
+<div style="display: flex; gap: 100px; justify-content: flex-start; margin-bottom: 15px;">
+  <img src="docs/screenshots/desktop1.jpg" alt="hero" style="width: 400px; height: auto;">
+  <img src="docs/screenshots/desktop2.jpg" alt="check" style="width: 400px; height: auto;">
+  <img src="docs/screenshots/mobile1.jpg" alt="mobel" style="width: 200px; height: auto;">
 </div>
 
 ## Структура репозитория
