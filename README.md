@@ -55,15 +55,10 @@
 
 ## Скриншоты
 
-<!-- <div style="display: flex; gap: 100px; justify-content: flex-start; margin-bottom: 15px;">
-  <img src="docs/screenshots/desktop1.jpg" alt="hero" style="width: 400px; height: auto;">
-  <img src="docs/screenshots/desktop2.jpg" alt="check" style="width: 400px; height: auto;">
-  <img src="docs/screenshots/mobile1.jpg" alt="mobel" style="width: auto; height: 350px;">
-</div> -->
 <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; width: 100%; margin-bottom: 15px;">
-  <img src="docs/screenshots/desktop1.jpg" alt="1" style="height: 200px; flex-grow: 1; object-fit: cover; min-width: 150px;">
-  <img src="docs/screenshots/desktop2.jpg" alt="2" style="height: 200px; flex-grow: 1; object-fit: cover; min-width: 150px;">
-  <img src="docs/screenshots/mobile1.jpg" alt="3" style="height: 200px; flex-grow: 1; object-fit: cover; min-width: 150px;">
+  <img src="docs/screenshots/desktop1.jpg" alt="1" style="height: 400px; flex-grow: 1; object-fit: cover; min-width: 150px;">
+  <img src="docs/screenshots/desktop2.jpg" alt="2" style="height: 400px; flex-grow: 1; object-fit: cover; min-width: 150px;">
+  <img src="docs/screenshots/mobile1.jpg" alt="3" style="height: 400px; flex-grow: 1; object-fit: cover; min-width: 150px;">
 </div>
 
 ## Структура репозитория
