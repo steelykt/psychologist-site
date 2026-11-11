@@ -56,9 +56,10 @@
 ## Скриншоты
 
 <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; width: 100%; margin-bottom: 15px;">
-  <img src="docs/screenshots/desktop1.jpg" alt="1" style="height: 400px; flex-grow: 1; object-fit: cover; min-width: 150px;">
-  <img src="docs/screenshots/desktop2.jpg" alt="2" style="height: 400px; flex-grow: 1; object-fit: cover; min-width: 150px;">
-  <img src="docs/screenshots/mobile1.jpg" alt="3" style="height: 400px; flex-grow: 1; object-fit: cover; min-width: 150px;">
+  <img src="docs/screenshots/desktop1.jpg" alt="hero" style="height: 400px; flex-grow: 1; object-fit: cover; min-width: 150px;">
+  <img src="docs/screenshots/desktop2.jpg" alt="test" style="height: 400px; flex-grow: 1; object-fit: cover; min-width: 150px;">
+  <img src="docs/screenshots/mobile1.jpg" alt="mobile1" style="height: 400px; flex-grow: 1; object-fit: cover; min-width: 150px;">
+  <img src="docs/screenshots/mobile2.jpg" alt="mobile2" style="height: 400px; flex-grow: 1; object-fit: cover; min-width: 150px;">
 </div>
 
 ## Структура репозитория
