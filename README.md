@@ -57,7 +57,8 @@
 
 ![Первый экран](docs/screenshots/desktop1.jpg)
 ![Самопроверка](docs/screenshots/desktop2.jpg)
-![Мобильная версия](docs/screenshots/mobile1.jpg)
+
+![Мобильная версия](docs/screenshots/mobile1.jpg) ![Мобильная версия](docs/screenshots/mobile2.jpg)
 
 ## Структура репозитория
 
