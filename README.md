@@ -55,11 +55,9 @@
 
 ## Скриншоты
 
-<!-- Положите изображения в docs/screenshots/ и раскомментируйте:
-![Первый экран](docs/screenshots/hero.png)
-![Самопроверка](docs/screenshots/quiz.png)
-![Мобильная версия](docs/screenshots/mobile.png)
--->
+[Первый экран](docs/screenshots/desktop1.jpg)
+[Самопроверка](docs/screenshots/desktop2.jpg)
+[Мобильная версия](docs/screenshots/mobile1.jpg)
 
 ## Структура репозитория
 
@@ -83,10 +81,6 @@ psychologist-site/
 ```
 
 Подробности: [контент](docs/CONTENT.md) · [дизайн](docs/DESIGN.md) · [передача заказчику](docs/HANDOVER.md) · [история версий](CHANGELOG.md).
-
-## Что менять
-
-Все тексты, цены и контакты перечислены в [docs/CONTENT.md](docs/CONTENT.md). Цвета и отступы лежат в блоке `:root` в `assets/css/styles.css`. Фото заменяются файлами в `assets/img/` (имена сохраните).
 
 ## Планы
 
