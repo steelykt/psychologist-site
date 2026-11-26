@@ -25,11 +25,11 @@
 | Первый экран с дыхательным упражнением | Сразу снижает напряжение и показывает подход специалиста |
 | Самопроверка из 5 вопросов | Вовлекает и подводит к записи. Ответы нигде не сохраняются |
 | «Как проходит работа» | Снимает страх перед первым обращением |
-| Стоимость | Прозрачная цена: от 3000 ₽ за сеанс |
+| Стоимость | Два формата с понятными ценами: разовая консультация от 3000 ₽, серия встреч от 2500 ₽ за встречу |
 | Принципы работы | Конфиденциальность, отсутствие осуждения, уважение к границам |
 | Путь: образование и опыт | Профессиональное доверие |
 | Частые вопросы | Закрывают возражения |
-| Закреплённая панель связи на телефоне | Telegram и WhatsApp всегда под рукой |
+| Закреплённая панель связи на телефоне | Telegram и звонок всегда под рукой, плюс WhatsApp или MAX |
 
 ## Дизайн-решения
 
@@ -55,11 +55,11 @@
 
 ## Скриншоты
 
-<!-- Положите изображения в docs/screenshots/ и раскомментируйте:
-![Первый экран](docs/screenshots/hero.png)
-![Самопроверка](docs/screenshots/quiz.png)
-![Мобильная версия](docs/screenshots/mobile.png)
--->
+<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; width: 100%; margin-bottom: 15px;">
+  <img src="docs/screenshots/desktop1.jpg" alt="hero" style="height: 300px; flex-grow: 1; object-fit: cover; min-width: 150px;">
+  <img src="docs/screenshots/desktop2.jpg" alt="test" style="height: 300px; flex-grow: 1; object-fit: cover; min-width: 150px;">
+  <img src="docs/screenshots/mobile1.jpg" alt="mobile1" style="height: 300px; flex-grow: 1; object-fit: cover; min-width: 150px;">
+</div>
 
 ## Структура репозитория
 
@@ -68,7 +68,7 @@ psychologist-site/
 ├── index.html              # разметка страницы
 ├── assets/
 │   ├── css/styles.css      # стили и дизайн-токены (:root)
-│   ├── js/main.js          # тема, дыхание, самопроверка, меню
+│   ├── js/main.js          # тема, дыхание, подбор формата, меню, настройки CONFIG
 │   └── img/                # портреты и картинка для превью ссылки
 ├── docs/
 │   ├── CONTENT.md          # тексты, цены, контакты: где что менять
@@ -83,10 +83,6 @@ psychologist-site/
 ```
 
 Подробности: [контент](docs/CONTENT.md) · [дизайн](docs/DESIGN.md) · [передача заказчику](docs/HANDOVER.md) · [история версий](CHANGELOG.md).
-
-## Что менять
-
-Все тексты, цены и контакты перечислены в [docs/CONTENT.md](docs/CONTENT.md). Цвета и отступы лежат в блоке `:root` в `assets/css/styles.css`. Фото заменяются файлами в `assets/img/` (имена сохраните).
 
 ## Планы
 

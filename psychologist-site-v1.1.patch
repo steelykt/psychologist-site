@@ -1,0 +1,957 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 3e805c0..4e4aab4 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,21 @@
+ # История версий
+ 
++## 1.1.0 — 2026-11-26
++Подбор формата, новые контакты, два формата в блоке цен.
++
++- **Подбор вместо самопроверки.** Шесть вопросов выявляют потребность: тема запроса, где ощущается, как давно, насколько мешает, чего ждёт от встреч, удобный формат. Результат показывает тему, подходящий формат (разовая консультация или серия встреч) и подсвечивает его в блоке цен. При ничьей между темами больше не побеждает первая в списке: тема берётся из первого вопроса, формат считается по баллам (правило в `main.js`, константа `SERIES_FROM`).
++- Кнопка «Назад» в подборе, фокус переносится на новый вопрос (работает с клавиатуры и скринридером), полоса прогресса показывает текущий вопрос.
++- Сообщение в Telegram из результата уже содержит тему, формат встреч и удобный формат.
++- **Статистика для Ольги в таблице:** после каждого прохождения уходит строка без имени и контактов (тема, давность, влияние, ожидания, формат). Если человек сам захочет, он оставляет контакт, и тот дописывается в его строку. По умолчанию выключено, см. `docs/RESULTS_TABLE.md`.
++- **Цены:** «Разовая консультация» (от 3000 ₽, не меньше часа и по запросу до 3 часов) и «Серия встреч» (от 2500 ₽ за встречу, каждая 50 минут, число встреч определяется вместе).
++- Контакты: «Позвонить», кнопка VK и кнопка MAX (MAX появится, когда в `main.js` будет указана ссылка), пометка про Meta у WhatsApp и Instagram, строка про экстренную помощь рядом с подбором.
++- Первый экран: чип «КПТ», цифры одной высоты (в счётчике дыхания, цене, статистике), слот счётчика в состоянии покоя показывает «4 · 2 · 6», фаза «Пауза» вместо «Задержите дыхание», в конце упражнения кнопка «Подобрать формат».
++- FAQ: «Чем КПТ отличается от обычного разговора?» (текст Ольги), стоимость и длительность, как записаться; собственный индикатор раскрытия.
++- Карточки одной высоты заголовка, новая иконка у «Самооценки», расшифровано название центра в блоке «Путь».
++- Цели Яндекс Метрики через `data-goal` (включаются номером счётчика в `main.js`).
++- Код `main.js` отформатирован и разбит на блоки, удалены неиспользуемые стили.
++- Резервный вид без JavaScript: блоки видны сразу.
++
+ ## 1.0.0 — 2026-11-05
+ Первый релиз.
+ 
+diff --git a/README.md b/README.md
+index c5e4bc6..ebb66c9 100644
+--- a/README.md
++++ b/README.md
+@@ -25,11 +25,11 @@
+ | Первый экран с дыхательным упражнением | Сразу снижает напряжение и показывает подход специалиста |
+ | Самопроверка из 5 вопросов | Вовлекает и подводит к записи. Ответы нигде не сохраняются |
+ | «Как проходит работа» | Снимает страх перед первым обращением |
+-| Стоимость | Прозрачная цена: от 3000 ₽ за сеанс |
++| Стоимость | Два формата с понятными ценами: разовая консультация от 3000 ₽, серия встреч от 2500 ₽ за встречу |
+ | Принципы работы | Конфиденциальность, отсутствие осуждения, уважение к границам |
+ | Путь: образование и опыт | Профессиональное доверие |
+ | Частые вопросы | Закрывают возражения |
+-| Закреплённая панель связи на телефоне | Telegram и WhatsApp всегда под рукой |
++| Закреплённая панель связи на телефоне | Telegram и звонок всегда под рукой, плюс WhatsApp или MAX |
+ 
+ ## Дизайн-решения
+ 
+@@ -68,7 +68,7 @@ psychologist-site/
+ ├── index.html              # разметка страницы
+ ├── assets/
+ │   ├── css/styles.css      # стили и дизайн-токены (:root)
+-│   ├── js/main.js          # тема, дыхание, самопроверка, меню
++│   ├── js/main.js          # тема, дыхание, подбор формата, меню, настройки CONFIG
+ │   └── img/                # портреты и картинка для превью ссылки
+ ├── docs/
+ │   ├── CONTENT.md          # тексты, цены, контакты: где что менять
+diff --git a/assets/css/styles.css b/assets/css/styles.css
+index c15c6e5..4a079a2 100644
+--- a/assets/css/styles.css
++++ b/assets/css/styles.css
+@@ -3,13 +3,12 @@
+ 
+ :root{--bg:#faf6f1;--surf:#fff;--ink:#2b2622;--mute:#574d45;--acc:#9f4d2a;--on-acc:#fff;--acc2:#7d9a86;--soft:#f0e6dc;--line:#e6dacd;
+ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+-:root:not([data-theme="light"]){}
+ @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1917;--surf:#26211e;--ink:#f3ebe3;--mute:#cfc2b4;--acc:#e08a6b;--on-acc:#1c1917;--acc2:#8fb09b;--soft:#2e2824;--line:#3a322d;color-scheme:dark}
+ }
+ :root[data-theme="dark"]{--bg:#1c1917;--surf:#26211e;--ink:#f3ebe3;--mute:#cfc2b4;--acc:#e08a6b;--on-acc:#1c1917;--acc2:#8fb09b;--soft:#2e2824;--line:#3a322d;color-scheme:dark}
+ html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px)}
+ *{box-sizing:border-box}
+-body{margin:0;background:var(--bg);color:var(--ink);font:400 18px/1.65 Manrope,system-ui,sans-serif}
++body{margin:0;background:var(--bg);color:var(--ink);font:400 18px/1.65 Manrope,system-ui,sans-serif;font-variant-numeric:lining-nums}
+ h1,h2,h3{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;line-height:1.1;margin:0}
+ h1{font-size:clamp(2.6rem,8vw,5rem)}
+ h2{font-size:clamp(2rem,5vw,3rem);margin-bottom:.6em}
+@@ -33,6 +32,7 @@ nav .l a:hover{color:var(--acc)}
+ .btn{display:inline-block;background:var(--acc);color:var(--on-acc);border:0;border-radius:99px;padding:14px 28px;font:700 1rem Manrope,sans-serif;text-decoration:none;cursor:pointer;min-height:48px;box-shadow:0 12px 26px -14px var(--acc);transition:transform .2s}
+ .btn:hover{transform:translateY(-2px)}
+ .btn.o{background:none;color:var(--ink);border:1.5px solid var(--line)}
++.btn[hidden]{display:none}
+ :focus-visible{outline:3px solid var(--acc2);outline-offset:3px}
+ .tg{background:none;border:1px solid var(--line);color:var(--ink);border-radius:99px;width:44px;height:44px;cursor:pointer;font-size:1.1rem}
+ .hero{display:grid;grid-template-columns:1.05fr 1fr;gap:48px;align-items:center;padding-top:40px}
+@@ -41,32 +41,29 @@ nav .l a:hover{color:var(--acc)}
+ .eyebrow{color:var(--acc);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem;margin-bottom:14px}
+ .hero p{color:var(--mute);font-size:1.15rem;max-width:30em;margin:18px 0 28px}
+ .row{display:flex;gap:12px;flex-wrap:wrap}
+-.orb{aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--acc2),var(--acc) 70%);display:grid;place-items:center;text-align:center;color:#fff;font:600 1.6rem "Cormorant Garamond",Georgia,serif;animation:br 8s ease-in-out infinite;max-width:360px;width:100%;margin:auto;box-shadow:0 30px 80px -20px var(--acc)}
+-@keyframes br{0%,100%{transform:scale(.88)}
+-50%{transform:scale(1)}
+-}
+-.cap{text-align:center;color:var(--mute);font-size:.85rem;margin-top:14px}
+ body{overflow-x:clip}
+-.price{font:600 2.8rem "Cormorant Garamond",Georgia,serif;color:var(--acc);line-height:1}
++.price{font:600 2.8rem "Cormorant Garamond",Georgia,serif;font-variant-numeric:lining-nums;color:var(--acc);line-height:1}
+ .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+ .card{background:var(--surf);border:1px solid var(--line);border-radius:22px;padding:28px}
+ .card p{color:var(--mute);margin:.6em 0 0}
++.card h3{overflow-wrap:break-word;hyphens:auto}
++@media(min-width:1001px){.c4 .card h3{min-height:2.2em}
++}
+ .ic{width:46px;height:46px;border-radius:14px;background:var(--soft);display:grid;place-items:center;font-size:1.4rem;margin-bottom:14px}
+ .alt{background:var(--soft)}
+-.moods{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
+-.moods button{background:var(--surf);border:1.5px solid var(--line);color:var(--ink);border-radius:99px;padding:12px 20px;font:500 1rem Manrope,sans-serif;cursor:pointer;min-height:48px}
+-.moods button[aria-pressed=true]{border-color:var(--acc);background:var(--acc);color:#fff}
+-#res{background:var(--surf);border-radius:18px;padding:22px;border:1px dashed var(--acc);min-height:80px}
+ .tl{list-style:none;padding:0;margin:0;border-left:2px solid var(--line)}
+ .tl li{padding:0 0 26px 26px;position:relative}
+ .tl li::before{content:"";position:absolute;left:-7px;top:8px;width:12px;height:12px;border-radius:50%;background:var(--acc)}
+ .tl small{color:var(--acc);font-weight:700}
+ details{background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:18px 22px;margin-bottom:10px}
+-summary{cursor:pointer;font-weight:700}
++summary{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
++summary::-webkit-details-marker{display:none}
++summary::after{content:"";flex:none;width:9px;height:9px;margin-top:.5em;border-right:2px solid var(--acc);border-bottom:2px solid var(--acc);transform:rotate(45deg);transition:transform .2s}
++details[open] summary::after{transform:rotate(-135deg);margin-top:.7em}
+ details p{color:var(--mute);margin:.7em 0 0}
+ .stats{display:grid;grid-template-columns:repeat(3,auto);gap:28px;justify-content:start;margin-top:30px}
+ .stats>div{font-size:.92rem;line-height:1.35;max-width:9.5em}
+-.stats b{display:block;font:600 2.6rem "Cormorant Garamond",Georgia,serif;color:var(--acc)}
++.stats b{display:block;font:600 2.6rem "Cormorant Garamond",Georgia,serif;font-variant-numeric:lining-nums;color:var(--acc)}
+ footer{padding:40px 0;color:var(--mute);font-size:.88rem;border-top:1px solid var(--line)}
+ .ab{display:grid;grid-template-columns:minmax(0,380px) 1fr;gap:56px;align-items:center}
+ @media(max-width:800px){.ab{grid-template-columns:1fr}
+@@ -79,12 +76,19 @@ footer{padding:40px 0;color:var(--mute);font-size:.88rem;border-top:1px solid va
+ .pb i{display:block;height:100%;background:var(--acc);width:0;transition:width .4s}
+ .qa{display:grid;gap:10px;margin-top:18px}
+ .qa button{text-align:left;background:var(--bg);border:1.5px solid var(--line);color:var(--ink);border-radius:16px;padding:14px 18px;font:500 1rem Manrope,sans-serif;cursor:pointer;min-height:48px;transition:border-color .2s,transform .2s}
+-.qa button:hover{border-color:var(--acc);transform:translateX(4px)}
++@media(hover:hover){.qa button:hover{border-color:var(--acc);transform:translateX(4px)}
++}
++.qa button:active{border-color:var(--acc)}
++.qh:focus{outline:none}
++.lk{background:none;border:0;color:var(--mute);font:500 .95rem Manrope,sans-serif;text-decoration:underline;cursor:pointer;min-height:44px;padding:10px 4px}
++.lk:hover{color:var(--acc)}
++.cr{max-width:720px;margin:14px 0 0}
+ .qn{color:var(--mute);font-size:.85rem}
+-.ic{font:600 1.4rem "Cormorant Garamond",Georgia,serif;color:var(--acc)}
++.qz .row{margin-top:18px}
++.ic{font:600 1.4rem "Cormorant Garamond",Georgia,serif;font-variant-numeric:lining-nums;color:var(--acc)}
+ .mb{display:none}
+ @media(max-width:700px){.mb{display:flex;gap:10px;position:fixed;left:0;right:0;bottom:0;z-index:30;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+-.mb .btn{flex:1;text-align:center;padding:12px}
++.mb .btn{flex:1;text-align:center;padding:12px 6px;font-size:.92rem;white-space:nowrap}
+ body{padding-bottom:76px}
+ }
+ .ph{position:relative;width:100%;max-width:460px;aspect-ratio:1;margin:auto;display:grid;place-items:center;--d:4s}
+@@ -101,7 +105,8 @@ body{padding-bottom:76px}
+ .ph img{position:relative;display:block;width:62%;height:auto;aspect-ratio:4/5;object-fit:cover;border-radius:999px 999px 24px 24px;border:5px solid var(--surf);box-shadow:0 28px 50px -26px rgba(0,0,0,.4)}
+ .bx{margin-top:26px;text-align:center}
+ .bl{font:600 1.7rem/1.2 "Cormorant Garamond",Georgia,serif;min-height:1.3em}
+-.bn{font:600 2.4rem/1 "Cormorant Garamond",Georgia,serif;color:var(--acc);min-height:1em;margin:2px 0}
++.bb{justify-content:center}
++.bn{font:600 2.4rem/1 "Cormorant Garamond",Georgia,serif;font-variant-numeric:lining-nums tabular-nums;color:var(--acc);min-height:1em;margin:2px 0}
+ .bs{color:var(--mute);font-size:.97rem;margin:6px 0 16px;min-height:1.4em}
+ .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}
+ .chips span{background:var(--soft);border-radius:99px;padding:7px 15px;font-size:.92rem}
+@@ -133,3 +138,23 @@ nav .row .btn{display:none}
+ .rv{opacity:1;transform:none}
+ }
+ 
++/* Форматы и стоимость */
++.c2{grid-template-columns:repeat(2,1fr)}
++@media(max-width:700px){.c2{grid-template-columns:1fr}
++}
++.price small{font:500 .95rem Manrope,sans-serif;color:var(--mute);margin-left:10px}
++#price .card{position:relative;display:flex;flex-direction:column;align-items:flex-start}
++#price .card .price{margin:.5em 0}
++#price .card p:last-of-type{margin-bottom:22px}
++#price .card .btn{margin-top:auto}
++.card.rec{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
++.rc{position:absolute;top:-13px;left:24px;background:var(--acc);color:var(--on-acc);font:700 .78rem Manrope,sans-serif;padding:5px 13px;border-radius:99px}
++
++/* Отправка ответов Ольге */
++.fm{display:grid;gap:10px;margin-top:22px;padding-top:20px;border-top:1px solid var(--line)}
++.fm input[type=text]{width:100%;min-height:48px;padding:12px 16px;border:1.5px solid var(--line);border-radius:14px;background:var(--bg);color:var(--ink);font:500 1rem Manrope,sans-serif}
++.fm .ck{display:flex;gap:10px;align-items:flex-start;font-size:.9rem;color:var(--mute)}
++.fm input[type=checkbox]{flex:none;width:22px;height:22px;margin-top:2px;accent-color:var(--acc)}
++.fm .btn{justify-self:start}
++.hp{position:absolute;left:-9999px}
++.hv{color:var(--ink);font-weight:700}
+diff --git a/assets/js/main.js b/assets/js/main.js
+index 9d38260..cdac073 100644
+--- a/assets/js/main.js
++++ b/assets/js/main.js
+@@ -1,29 +1,483 @@
+ /* Ольга Охлопкова — личный сайт психолога
+-   Скрипты: тема, дыхательное упражнение, самопроверка, мобильное меню, появление блоков. */
+-
+-var HT=document.documentElement;
+-try{var sv=localStorage.getItem('theme');if(sv==='dark'||sv==='light')HT.setAttribute('data-theme',sv)}catch(e){}
+-document.getElementById('tg').onclick=function(){var cur=HT.getAttribute('data-theme');var dark=cur?cur==='dark':matchMedia('(prefers-color-scheme:dark)').matches;var next=dark?'light':'dark';HT.setAttribute('data-theme',next);try{localStorage.setItem('theme',next)}catch(e){}};
+-var Q=[['Что чаще всего забирает ваши силы?',[['Постоянная усталость и нехватка отдыха',0],['Обязательства перед другими',1],['Ощущение, что приходится справляться в одиночку',2],['Мысли, в которых трудно разобраться',3]]],
+-['Как вы реагируете, когда вас о чём-то просят?',[['Соглашаюсь, даже когда нет сил',1],['Тяну время и откладываю решение',3],['Беру на себя, потому что больше некому',2],['Делаю, а потом долго восстанавливаюсь',0]]],
+-['О чём вы чаще всего думаете перед сном?',[['Одни и те же вопросы без ответа',3],['Разговоры, в которых не удалось сказать «нет»',1],['Список дел, до которых не дошли руки',0],['Что рядом нет человека, с кем можно поделиться',2]]],
+-['Чего вам сейчас больше всего не хватает?',[['Поддержки и понимания',2],['Ясности: что мне на самом деле нужно',3],['Сил и отдыха',0],['Своего времени и границ',1]]],
+-['Что хотелось бы изменить в ближайший месяц?',[['Научиться говорить «нет» без вины',1],['Понять, в какую сторону двигаться',3],['Найти людей и опору рядом',2],['Наладить сон и восстановление',0]]]];
+-var R=[['Вам важно восстановить ресурс','Похоже, сил уходит больше, чем возвращается. На встрече можно подобрать реалистичный режим восстановления и разобраться, где утекает энергия.'],['Вам важны границы','Вы много отдаёте другим. Вместе можно потренироваться говорить «нет» без вины и заботиться о себе так же, как о близких.'],['Вам нужна опора','Справляться в одиночку тяжело. Терапия может стать местом, где вас слушают, а заодно помочь выстроить поддержку рядом.'],['Вам нужна ясность','Сейчас много мыслей и мало понимания, чего вы хотите. Разговор помогает навести порядок и увидеть следующий шаг.']];
+-var qi=0,sc=[0,0,0,0],qz=document.getElementById('qz');
+-function mk(t,c,h){var e=document.createElement(t);if(c)e.className=c;if(h!==undefined)e.textContent=h;return e}
+-function draw(){qz.textContent='';if(qi>=Q.length){var m=0;for(var k=1;k<4;k++)if(sc[k]>sc[m])m=k;qz.appendChild(mk('div','qn','Ваш результат'));qz.appendChild(mk('h3','','')).textContent=R[m][0];var p=mk('p','',R[m][1]);p.style.color='var(--mute)';qz.appendChild(p);var r=mk('div','row');r.style.marginTop='18px';var a=mk('a','btn','Обсудить результат на встрече');a.href='#contact';var b=mk('button','btn o','Пройти заново');b.onclick=function(){qi=0;sc=[0,0,0,0];draw()};r.appendChild(a);r.appendChild(b);qz.appendChild(r);var n=mk('p','qn','Это самопроверка, а не диагноз, и она не заменяет консультацию специалиста.');n.style.marginTop='16px';qz.appendChild(n);return}
+-var pb=mk('div','pb');pb.setAttribute('role','progressbar');pb.setAttribute('aria-valuemin','0');pb.setAttribute('aria-valuemax',Q.length);pb.setAttribute('aria-valuenow',qi);var i=mk('i');i.style.width=(qi/Q.length*100)+'%';pb.appendChild(i);qz.appendChild(pb);qz.appendChild(mk('div','qn','Вопрос '+(qi+1)+' из '+Q.length));qz.appendChild(mk('h3','',Q[qi][0]));var g=mk('div','qa');Q[qi][1].forEach(function(o){var bt=mk('button','',o[0]);bt.onclick=function(){sc[o[1]]++;qi++;draw();qz.querySelector('button,a')&&qz.querySelector('h3')&&qz.querySelector('h3').scrollIntoView({block:'nearest',behavior:'smooth'})};g.appendChild(bt)});qz.appendChild(g)}
+-draw();
+-var ph=document.getElementById('ph'),bl=document.getElementById('bl'),bn=document.getElementById('bn'),bs=document.getElementById('bs'),bg=document.getElementById('bgo');
+-var PH=[['Вдох',4],['Задержите дыхание',2],['Выдох',6]],N=4,tm=null,ci=0,pi=0,lf=0;
+-function phase(){var p=PH[pi];bl.textContent=p[0];lf=p[1];bn.textContent=lf;if(pi===0){ph.style.setProperty('--d','4s');ph.classList.add('in')}if(pi===2){ph.style.setProperty('--d','6s');ph.classList.remove('in')}bs.textContent='Цикл '+(ci+1)+' из '+N}
+-function stop(done){clearInterval(tm);tm=null;ph.style.setProperty('--d','3s');ph.classList.remove('in');bn.textContent='';bg.textContent=done?'Подышать ещё раз':'Подышать вместе';bl.textContent=done?'Хорошо. Как вы себя чувствуете?':'Хотите выдохнуть?';bs.textContent=done?'Если хочется разобраться глубже, пройдите самопроверку ниже.':'Минута дыхания: вдох 4 секунды, пауза, выдох 6'}
+-bg.onclick=function(){if(tm){stop(false);return}ci=0;pi=0;bg.textContent='Остановить';phase();tm=setInterval(function(){lf--;if(lf>0){bn.textContent=lf;return}pi++;if(pi>2){pi=0;ci++;if(ci>=N){stop(true);return}}phase()},1000)};
+-var mn=document.getElementById('mn'),mp=document.getElementById('mp');
+-function cm(){mp.hidden=true;mn.setAttribute('aria-expanded','false')}
+-mn.onclick=function(){var o=mp.hidden;mp.hidden=!o;mn.setAttribute('aria-expanded',String(o))};
+-mp.addEventListener('click',function(e){if(e.target.tagName==='A')cm()});
+-document.addEventListener('keydown',function(e){if(e.key==='Escape')cm()});
+-var io=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting)x.target.classList.add('in')})},{threshold:.12});
+-document.querySelectorAll('.rv').forEach(function(e){io.observe(e)});
++   Скрипты: тема, дыхательное упражнение, самопроверка, мобильное меню,
++   появление блоков, кнопка MAX и цели Яндекс Метрики. */
++
++/* ---------- Настройки: меняются только здесь ---------- */
++var CONFIG = {
++  // Ссылка на профиль в MAX. Пока пусто, кнопка MAX скрыта,
++  // а в нижней панели на телефоне остаётся WhatsApp.
++  MAX_URL: '',
++  // Ссылка на страницу в VK. Пока пусто, кнопка VK скрыта.
++  VK_URL: 'https://vk.ru/byolgaokhlopkova',
++  // Номер счётчика Яндекс Метрики. 0 — цели никуда не отправляются.
++  METRIKA_ID: 0,
++  // Статистика подбора в таблицу для Ольги (см. docs/RESULTS_TABLE.md).
++  // RESULTS_ENDPOINT: адрес приёма. Заполнен — после каждого прохождения уходит строка
++  // БЕЗ имени и контактов (какая тема, формат, давность и т. д.).
++  // PRIVACY_URL: страница политики. Заполнено вместе с адресом — под результатом появляется
++  // необязательная форма «Оставить контакт», и контакт добавляется к той же строке статистики.
++  RESULTS_ENDPOINT: '',
++  PRIVACY_URL: ''
++};
++
++var HT = document.documentElement;
++var REDUCED = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
++
++function $(id) { return document.getElementById(id); }
++
++function el(tag, cls, text) {
++  var e = document.createElement(tag);
++  if (cls) e.className = cls;
++  if (text !== undefined) e.textContent = text;
++  return e;
++}
++
++/* ---------- Цели Метрики ---------- */
++function goal(name, params) {
++  try {
++    if (CONFIG.METRIKA_ID && window.ym) window.ym(CONFIG.METRIKA_ID, 'reachGoal', name, params);
++  } catch (e) {}
++}
++
++// Любая ссылка или кнопка с data-goal="имя" отправляет цель по клику
++document.addEventListener('click', function (e) {
++  var t = e.target.closest ? e.target.closest('[data-goal]') : null;
++  if (t) goal(t.getAttribute('data-goal'));
++});
++
++/* ---------- Кнопки MAX и VK: появляются, когда заполнена ссылка ---------- */
++(function () {
++  function show(attr, url) {
++    [].forEach.call(document.querySelectorAll('[' + attr + ']'), function (a) {
++      a.href = url;
++      a.hidden = false;
++    });
++  }
++  if (CONFIG.MAX_URL) {
++    show('data-max', CONFIG.MAX_URL);
++    // WhatsApp в нижней панели на телефоне уступает место MAX
++    [].forEach.call(document.querySelectorAll('[data-nomax]'), function (a) { a.hidden = true; });
++  }
++  if (CONFIG.VK_URL) show('data-vk', CONFIG.VK_URL);
++})();
++
++/* ---------- Тема ---------- */
++try {
++  var saved = localStorage.getItem('theme');
++  if (saved === 'dark' || saved === 'light') HT.setAttribute('data-theme', saved);
++} catch (e) {}
++
++$('tg').onclick = function () {
++  var cur = HT.getAttribute('data-theme');
++  var dark = cur ? cur === 'dark' : matchMedia('(prefers-color-scheme:dark)').matches;
++  var next = dark ? 'light' : 'dark';
++  HT.setAttribute('data-theme', next);
++  try { localStorage.setItem('theme', next); } catch (e) {}
++};
++
++/* ---------- Подбор: тема, формат встреч и, по желанию, отправка Ольге ----------
++   Вопросы выявляют потребность, а не ставят диагноз:
++   1) тема запроса (совпадает с блоком «С чем помогаю»),
++   2) где это ощущается сильнее всего,
++   3) как давно и 4) насколько мешает повседневной жизни,
++   5) чего человек ждёт от встреч, 6) удобный формат.
++   Формат встреч подбирается по сумме баллов (см. recommendSeries). */
++var TOPICS = [
++  ['Тревога и стресс',
++    'Судя по ответам, главная тема сейчас — тревога и напряжение. На встречах можно разобрать, какие мысли и ситуации их запускают, и найти другие способы справляться.'],
++  ['Родительство',
++    'Судя по ответам, сейчас важна тема родительства: усталость, чувство вины, отношения с ребёнком. На встрече можно разобрать конкретные ситуации и найти способы справляться.'],
++  ['Жизненные перемены',
++    'Судя по ответам, вы в периоде перемен. На встречах можно разобраться, что вас беспокоит, и найти опору для следующего шага.'],
++  ['Самооценка и границы',
++    'Судя по ответам, важна тема самооценки и границ. На встрече можно разобрать ситуации, где трудно отстоять себя, и найти другие способы реагировать.'],
++  ['Пока неясно, с чего начать',
++    'Это нормально: запрос часто проясняется в разговоре. На встрече вы вместе поймёте, что именно вас беспокоит.']
++];
++
++// [текст вопроса, ключ для таблицы, [[вариант ответа, баллы или номер темы], ...]]
++var Q = [
++  ['С чем вы хотели бы прийти?', 'topic', [
++    ['Тревога, напряжение, стресс', 0],
++    ['Родительство и отношения с ребёнком', 1],
++    ['Перемены: работа, роль, город, выбор пути', 2],
++    ['Самооценка, границы, отношения с людьми', 3],
++    ['Пока сложно сказать', 4]]],
++  ['Где это чувствуется сильнее всего?', 'area', [
++    ['В теле и сне', 0],
++    ['В настроении и мыслях', 0],
++    ['В отношениях с близкими', 0],
++    ['В работе и делах', 0]]],
++  ['Как давно это продолжается?', 'duration', [
++    ['Меньше месяца', 0],
++    ['От месяца до полугода', 1],
++    ['Больше полугода', 2],
++    ['Сколько себя помню', 2]]],
++  ['Насколько это мешает повседневной жизни?', 'interference', [
++    ['Почти не мешает', 0],
++    ['Иногда мешает', 0],
++    ['Часто мешает', 1],
++    ['Сильно мешает, трудно справляться', 1]]],
++  ['Чего вы ждёте от встреч?', 'need', [
++    ['Разобраться в одной конкретной ситуации', 0],
++    ['Научиться справляться в целом, не только сейчас', 2],
++    ['Пока не знаю, хочу обсудить с психологом', 1]]],
++  ['Как вам удобнее встречаться?', 'meet', [
++    ['Очно в Якутске', 0],
++    ['Онлайн', 0],
++    ['Подойдёт любой формат', 0]]]
++];
++
++var SERIES_FROM = 3; // с этой суммы баллов (давность + влияние + ожидания, максимум 5) предлагаем серию встреч
++var qz = $('qz');
++var answers = []; // выбранные варианты: [индекс варианта] для каждого вопроса
++
++function opt(qi) { return Q[qi][2][answers[qi]]; }
++
++// Пока тема неясна, всегда начинаем с разовой консультации
++function recommendSeries() {
++  if (opt(0)[1] === 4) return false;
++  return opt(2)[1] + opt(3)[1] + opt(4)[1] >= SERIES_FROM;
++}
++
++// Последний вариант в вопросе про влияние: «Сильно мешает, трудно справляться»
++function heavy() { return answers[3] === Q[3][2].length - 1; }
++
++// Сводка для таблицы и для сообщения в мессенджер
++function summary() {
++  var out = {};
++  Q.forEach(function (q, i) { out[q[1]] = opt(i)[0]; });
++  out.recommend = recommendSeries() ? 'Серия встреч' : 'Разовая консультация';
++  return out;
++}
++
++function statsEnabled() { return !!CONFIG.RESULTS_ENDPOINT; }
++function contactEnabled() { return statsEnabled() && !!CONFIG.PRIVACY_URL; }
++
++// Если статистика включена, честно меняем обещание «ответы нигде не сохраняются»
++(function () {
++  var intro = $('qintro');
++  if (intro && statsEnabled()) {
++    intro.textContent = 'Шесть коротких вопросов без регистрации. Это не диагностика: мы подскажем, какая тема и какой формат встреч вам, возможно, подойдут. Ответы без имени и контактов попадают в обезличенную статистику для Ольги. Контакт оставляете только вы сами и только по желанию.';
++  }
++})();
++
++// Отправка в таблицу. Ответ сервера не читаем (так принимает Google Apps Script),
++// поэтому успех означает «запрос ушёл без сетевой ошибки».
++function post(data) {
++  var ctrl = window.AbortController ? new AbortController() : null;
++  var to = setTimeout(function () { if (ctrl) ctrl.abort(); }, 10000);
++  return fetch(CONFIG.RESULTS_ENDPOINT, {
++    method: 'POST',
++    mode: 'no-cors',
++    keepalive: true,
++    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
++    body: JSON.stringify(data),
++    signal: ctrl ? ctrl.signal : undefined
++  }).then(function (r) { clearTimeout(to); return r; },
++          function (e) { clearTimeout(to); throw e; });
++}
++
++// Случайный номер прохождения: связывает обезличенную строку с контактом, если человек его оставит
++function newId() {
++  var a = '';
++  try {
++    var u = new Uint8Array(8);
++    crypto.getRandomValues(u);
++    u.forEach(function (n) { a += ('0' + n.toString(16)).slice(-2); });
++  } catch (e) {
++    a = Math.random().toString(16).slice(2, 10) + Date.now().toString(16);
++  }
++  return a;
++}
++
++function payload(kind, rid, sum) {
++  return {
++    kind: kind, rid: rid, ts: new Date().toISOString(),
++    topic: sum.topic, area: sum.area, duration: sum.duration,
++    interference: sum.interference, need: sum.need, meet: sum.meet,
++    recommend: sum.recommend,
++    src: location.search.replace(/^\?/, '').slice(0, 200)
++  };
++}
++
++function keepInView() {
++  if (qz.scrollIntoView) qz.scrollIntoView({ block: 'nearest', behavior: REDUCED ? 'auto' : 'smooth' });
++}
++
++// Подсветка подходящего формата в блоке «Форматы и стоимость»
++function markPrice(series) {
++  var one = $('p-one'), ser = $('p-series');
++  [one, ser].forEach(function (c) {
++    if (!c) return;
++    c.classList.remove('rec');
++    var old = c.querySelector('.rc');
++    if (old) old.remove();
++  });
++  if (series === null) return;
++  var card = series ? ser : one;
++  if (!card) return;
++  card.classList.add('rec');
++  card.appendChild(el('span', 'rc', 'Подходит вам'));
++}
++
++function drawQuestion() {
++  var i = answers.length;
++  var q = Q[i];
++
++  var bar = el('div', 'pb');
++  bar.setAttribute('role', 'progressbar');
++  bar.setAttribute('aria-label', 'Прогресс подбора');
++  bar.setAttribute('aria-valuemin', '0');
++  bar.setAttribute('aria-valuemax', String(Q.length));
++  bar.setAttribute('aria-valuenow', String(i + 1));
++  var fill = el('i');
++  fill.style.width = ((i + 1) / Q.length * 100) + '%';
++  bar.appendChild(fill);
++  qz.appendChild(bar);
++
++  var head = el('div', 'qh');
++  head.tabIndex = -1;
++  head.appendChild(el('div', 'qn', 'Вопрос ' + (i + 1) + ' из ' + Q.length));
++  head.appendChild(el('h3', '', q[0]));
++  qz.appendChild(head);
++
++  var list = el('div', 'qa');
++  q[2].forEach(function (o, oi) {
++    var b = el('button', '', o[0]);
++    b.type = 'button';
++    b.onclick = function () {
++      if (answers.length === 0) goal('quiz_start');
++      answers.push(oi);
++      draw(true);
++      keepInView();
++    };
++    list.appendChild(b);
++  });
++  qz.appendChild(list);
++
++  if (i > 0) {
++    var back = el('button', 'lk', '← Назад');
++    back.type = 'button';
++    back.onclick = function () { answers.pop(); draw(true); };
++    qz.appendChild(back);
++  }
++}
++
++function drawResult() {
++  var sum = summary();
++  var series = recommendSeries();
++  var topic = TOPICS[opt(0)[1]];
++  goal('quiz_done', { quiz: { topic: topic[0], recommend: sum.recommend } });
++  markPrice(series);
++  var rid = null;
++  if (statsEnabled()) {
++    rid = newId();
++    post(payload('stat', rid, sum)).catch(function () {}); // статистика не должна мешать человеку
++  }
++
++  var head = el('div', 'qh');
++  head.tabIndex = -1;
++  head.appendChild(el('div', 'qn', 'Ваш результат'));
++  head.appendChild(el('h3', '', topic[0]));
++  qz.appendChild(head);
++
++  var p = el('p', '', topic[1]);
++  p.style.color = 'var(--mute)';
++  qz.appendChild(p);
++
++  var fmt = el('p', '');
++  var strong = el('b', '', series ? 'Вам может подойти серия встреч. ' : 'Лучше начать с разовой консультации. ');
++  fmt.appendChild(strong);
++  fmt.appendChild(document.createTextNode(series
++    ? 'Тема давняя или заметно мешает, поэтому несколько встреч по 50 минут могут быть удобнее. Подробности в блоке «Форматы и стоимость».'
++    : 'Одна встреча поможет разобраться в ситуации, а потом вы вместе решите, нужны ли ещё. Подробности в блоке «Форматы и стоимость».'));
++  qz.appendChild(fmt);
++
++  if (heavy()) {
++    qz.appendChild(el('p', 'qn cr hv', 'Если сейчас очень тяжело, не ждите записи: звоните 112 или обращайтесь в местную службу экстренной психологической помощи.'));
++  }
++
++  // Сообщение в Telegram уже написано: диалог не начинается с нуля
++  var text = 'Здравствуйте! Хочу обсудить запись. Тема: ' + topic[0] + '. Подойдёт: ' + sum.recommend.toLowerCase() + '. Формат: ' + sum.meet.toLowerCase() + '.';
++  var row = el('div', 'row');
++  var a = el('a', 'btn', 'Написать в Telegram');
++  a.href = 'https://t.me/olyabud?text=' + encodeURIComponent(text);
++  a.rel = 'noopener';
++  a.setAttribute('data-goal', 'quiz_cta');
++  var more = el('a', 'btn o', 'Другие способы связи');
++  more.href = '#contact';
++  row.appendChild(a);
++  row.appendChild(more);
++  qz.appendChild(row);
++
++  if (contactEnabled() && rid) qz.appendChild(buildSendForm(sum, rid));
++
++  var again = el('button', 'lk', 'Пройти заново');
++  again.type = 'button';
++  again.onclick = function () { answers = []; markPrice(null); draw(true); };
++  qz.appendChild(again);
++
++  var note = 'Это не диагноз и не заменяет консультацию специалиста.';
++  if (statsEnabled()) note += ' Ваши ответы без имени и контактов учтены в обезличенной статистике.';
++  qz.appendChild(el('p', 'qn', note));
++}
++
++/* Необязательный контакт. Строка статистики уже отправлена без имени; здесь человек
++   по желанию добавляет контакт к той же строке (по номеру прохождения rid).
++   Галочка согласия не ставится заранее, без неё форма не отправляется. */
++function buildSendForm(sum, rid) {
++  var wrap = el('form', 'fm');
++  wrap.appendChild(el('b', '', 'Оставить контакт'));
++  wrap.appendChild(el('span', 'qn', 'Необязательно. Ольга свяжется с вами, а контакт добавится к вашему результату.'));
++
++  function field(ph, name, required) {
++    var i = el('input');
++    i.type = 'text';
++    i.name = name;
++    i.placeholder = ph;
++    i.maxLength = 120;
++    i.required = !!required;
++    i.autocomplete = name === 'name' ? 'given-name' : 'off';
++    i.setAttribute('aria-label', ph);
++    return i;
++  }
++  var name = field('Как к вам обращаться', 'name', false);
++  var contact = field('Телефон или Telegram для связи', 'contact', true);
++  var hp = field('Не заполняйте это поле', 'site', false);
++  hp.className = 'hp';
++  hp.tabIndex = -1;
++  hp.setAttribute('aria-hidden', 'true');
++
++  var lab = el('label', 'ck');
++  var cb = el('input');
++  cb.type = 'checkbox';
++  cb.required = true;
++  lab.appendChild(cb);
++  var t = el('span');
++  t.appendChild(document.createTextNode('Согласен(на) на передачу контакта и ответов Ольге для связи со мной. '));
++  var pol = el('a', '', 'Политика обработки данных');
++  pol.href = CONFIG.PRIVACY_URL;
++  pol.target = '_blank';
++  pol.rel = 'noopener';
++  t.appendChild(pol);
++  lab.appendChild(t);
++
++  var send = el('button', 'btn o', 'Отправить контакт');
++  send.type = 'submit';
++  var status = el('p', 'qn');
++  status.setAttribute('role', 'status');
++
++  [name, contact, hp, lab, send, status].forEach(function (n) { wrap.appendChild(n); });
++
++  wrap.onsubmit = function (e) {
++    e.preventDefault();
++    if (hp.value) return; // защита от автоматических отправок
++    var data = payload('contact', rid, sum);
++    data.name = name.value.trim();
++    data.contact = contact.value.trim();
++    send.disabled = true;
++    status.textContent = 'Отправляем…';
++    post(data).then(function () {
++      status.textContent = 'Отправлено. Ольга свяжется с вами.';
++      goal('quiz_sent');
++    }).catch(function () {
++      send.disabled = false;
++      status.textContent = 'Не получилось отправить. Напишите Ольге в Telegram: кнопка выше.';
++    });
++  };
++  return wrap;
++}
++
++// После каждого ответа блок перерисовывается, поэтому фокус переносим на новый
++// вопрос: иначе при управлении с клавиатуры он сбрасывается в начало страницы.
++function draw(moveFocus) {
++  qz.textContent = '';
++  if (answers.length >= Q.length) drawResult(); else drawQuestion();
++  if (moveFocus) {
++    var h = qz.querySelector('.qh');
++    if (h) h.focus({ preventScroll: true });
++  }
++}
++draw(false);
++
++/* ---------- Дыхание: вдох 4 с, пауза 2 с, выдох 6 с, 4 цикла ---------- */
++var ph = $('ph'), bl = $('bl'), bn = $('bn'), bs = $('bs'), bgo = $('bgo'), bmood = $('bmood');
++var PHASES = [{ name: 'Вдох', sec: 4 }, { name: 'Пауза', sec: 2 }, { name: 'Выдох', sec: 6 }];
++var CYCLES = 4;
++var IDLE_COUNT = '4 · 2 · 6';
++var IDLE_HINT = 'Вдох, пауза и выдох в секундах. Меньше минуты.';
++var timer = null, cycle = 0, step = 0, left = 0;
++
++function showPhase() {
++  var p = PHASES[step];
++  bl.textContent = p.name;
++  left = p.sec;
++  bn.textContent = left;
++  if (step === 0) { ph.style.setProperty('--d', '4s'); ph.classList.add('in'); }
++  if (step === 2) { ph.style.setProperty('--d', '6s'); ph.classList.remove('in'); }
++  bs.textContent = 'Цикл ' + (cycle + 1) + ' из ' + CYCLES;
++}
++
++function stopBreath(done) {
++  clearInterval(timer);
++  timer = null;
++  ph.style.setProperty('--d', '3s');
++  ph.classList.remove('in');
++  bn.textContent = IDLE_COUNT;
++  bgo.textContent = done ? 'Подышать ещё раз' : 'Подышать вместе';
++  bl.textContent = done ? 'Готово' : 'Хотите выдохнуть?';
++  bs.textContent = done ? 'Если хочется разобраться глубже, ответьте на несколько вопросов ниже.' : IDLE_HINT;
++  bmood.hidden = !done;
++  if (done) goal('breath_done');
++}
++
++function tick() {
++  left--;
++  if (left > 0) { bn.textContent = left; return; }
++  step++;
++  if (step >= PHASES.length) {
++    step = 0;
++    cycle++;
++    if (cycle >= CYCLES) { stopBreath(true); return; }
++  }
++  showPhase();
++}
++
++bgo.onclick = function () {
++  if (timer) { stopBreath(false); return; }
++  cycle = 0;
++  step = 0;
++  bgo.textContent = 'Остановить';
++  bmood.hidden = true;
++  goal('breath_start');
++  showPhase();
++  timer = setInterval(tick, 1000);
++};
++
++// Если вкладку свернули, упражнение останавливается: таймеры в фоне сбиваются
++document.addEventListener('visibilitychange', function () {
++  if (document.hidden && timer) stopBreath(false);
++});
++
++/* ---------- Мобильное меню ---------- */
++var mn = $('mn'), mp = $('mp');
++function closeMenu() { mp.hidden = true; mn.setAttribute('aria-expanded', 'false'); }
++mn.onclick = function () {
++  var open = mp.hidden;
++  mp.hidden = !open;
++  mn.setAttribute('aria-expanded', String(open));
++};
++mp.addEventListener('click', function (e) { if (e.target.tagName === 'A') closeMenu(); });
++document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeMenu(); });
++
++/* ---------- Появление блоков при прокрутке ---------- */
++var blocks = document.querySelectorAll('.rv');
++if ('IntersectionObserver' in window) {
++  var io = new IntersectionObserver(function (entries) {
++    entries.forEach(function (x) { if (x.isIntersecting) x.target.classList.add('in'); });
++  }, { threshold: 0.12 });
++  [].forEach.call(blocks, function (b) { io.observe(b); });
++} else {
++  [].forEach.call(blocks, function (b) { b.classList.add('in'); });
++}
+diff --git a/docs/CONTENT.md b/docs/CONTENT.md
+index 706d291..849f50c 100644
+--- a/docs/CONTENT.md
++++ b/docs/CONTENT.md
+@@ -6,7 +6,7 @@
+ |---|---|---|
+ | Имя | Ольга Охлопкова | `<title>`, меню, подвал, теги `og:` |
+ | Заголовок первого экрана | Пространство, где можно выдохнуть | `<h1>` |
+-| Цена | от 3000 ₽ за сеанс | плашки первого экрана, блок «Форматы и стоимость», `description`, JSON-LD |
++| Цена | разовая консультация от 3000 ₽ (не меньше часа, по запросу до 3 часов), серия встреч от 2500 ₽ за встречу (каждая 50 минут, число встреч определяется вместе) | плашка первого экрана, блок «Форматы и стоимость», FAQ, `description`, JSON-LD |
+ | Telegram | `https://t.me/olyabud` | кнопки контактов и нижняя панель |
+ | WhatsApp | `https://wa.me/79644156843` | кнопки контактов и нижняя панель |
+ | Instagram | `https://www.instagram.com/olga.okhlopkova.bud` | кнопки контактов, JSON-LD |
+diff --git a/docs/DESIGN.md b/docs/DESIGN.md
+index 69b11a2..3e6ffe4 100644
+--- a/docs/DESIGN.md
++++ b/docs/DESIGN.md
+@@ -38,3 +38,11 @@
+ - Дыхательное упражнение запускается по желанию: постоянная анимация раздражает тревожных людей.
+ - Самопроверка не сохраняет ответы и не ставит диагнозов.
+ - Один главный призыв на первом экране.
++
++## Решения по подбору формата (1.1.0)
++- Подбор выявляет потребность и не ставит диагноз: вопросы про тему, влияние на жизнь и ожидания, а не клинические шкалы. Так он соответствует обещанию «это не диагностика» и не требует кризисного протокола внутри теста.
++- Формат встреч: баллы за давность (0–2), влияние на повседневную жизнь (0–1) и ожидания (0–2); серия предлагается от 3 баллов, при неясной теме всегда разовая консультация.
++- Если на вопрос о влиянии выбрано «Сильно мешает», в результате показывается строка про экстренную помощь.
++- Состояния ответа: Default, Hover (только на устройствах с наведением), Pressed, Focus-visible.
++- Статистика: строка без имени и контактов уходит после результата, контакт добавляется только по желанию человека и с согласием. Над подбором и под результатом написано, что именно сохраняется (видимость статуса, Нильсен).
++- Формат «Серия встреч» назван по сути («несколько встреч по 50 минут»), а не «системный анализ»; число встреч не ограничено минимумом, чтобы не создавать барьер входа.
+diff --git a/docs/HANDOVER.md b/docs/HANDOVER.md
+index e26e891..75fa2d7 100644
+--- a/docs/HANDOVER.md
++++ b/docs/HANDOVER.md
+@@ -16,8 +16,20 @@
+ 3. Добавьте у регистратора четыре A-записи (`185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`) и CNAME для `www` на `steelykt.github.io`.
+ 4. Замените адрес сайта в `og:url`, `og:image`, JSON-LD, `robots.txt` и `sitemap.xml`.
+ 
++## Настройки в `assets/js/main.js` (блок `CONFIG` в начале файла)
++| Параметр | Что делает |
++|---|---|
++| `MAX_URL` | Ссылка на профиль в MAX. Пока пусто, кнопка скрыта. Когда заполнено, MAX появляется в контактах и заменяет WhatsApp в нижней панели на телефоне |
++| `VK_URL` | Ссылка на страницу в VK (сейчас `https://vk.ru/byolgaokhlopkova`). Пустое значение скрывает кнопку |
++| `METRIKA_ID` | Номер счётчика Яндекс Метрики. Пока 0, цели не отправляются |
++| `RESULTS_ENDPOINT` | Адрес таблицы для статистики подбора (без имён и контактов), см. [RESULTS_TABLE.md](RESULTS_TABLE.md) |
++| `PRIVACY_URL` | Страница политики. Вместе с адресом включает форму «Оставить контакт» |
++
+ ## Аналитика
+-Добавьте код Яндекс Метрики перед `</head>`, баннер согласия на cookie и цели: нажатия на Telegram, WhatsApp, Instagram и завершение самопроверки.
++1. Добавьте код счётчика Яндекс Метрики перед `</head>` и укажите его номер в `METRIKA_ID`. Нужен баннер согласия на cookie.
++2. Создайте в Метрике цели с этими идентификаторами (тип «JavaScript-событие»): `tg`, `tel`, `wa`, `ig`, `max`, `vk` (кнопки в контактах), `tg_bar`, `tel_bar`, `wa_bar`, `max_bar` (нижняя панель), `breath_start`, `breath_done`, `quiz_start`, `quiz_done`, `quiz_cta`, `quiz_sent`.
++3. В `quiz_done` уходят тема и рекомендованный формат как параметры визита, их видно в отчёте по параметрам без передачи персональных данных.
++4. Для сравнения каналов ставьте метки в ссылки: например, в био Instagram `https://steelykt.github.io/psychologist-site/?utm_source=instagram`.
+ 
+ ## Чек-лист перед рекламой и продвижением
+ - [ ] Указаны данные исполнителя (ФИО, статус, ИНН) и политика конфиденциальности
+@@ -26,8 +38,12 @@
+ - [ ] Указан номер местной службы экстренной психологической помощи
+ - [ ] Проверены ссылки, меню и тест на реальных телефонах (iOS и Android)
+ - [ ] Сайт добавлен в Яндекс Вебмастер, отправлен `sitemap.xml`
+-- [ ] Подключены Метрика и баннер cookie
++- [ ] Подключены Метрика и баннер cookie, созданы цели
++- [ ] Указана ссылка на MAX (или кнопка оставлена скрытой)
++- [ ] Оля подтвердила тексты про КПТ, форматы встреч и цены
++- [ ] Если включается таблица: адрес в `RESULTS_ENDPOINT`; для формы контакта политика и текст согласия проверены юристом
+ 
+ ## Ограничения
+-- Сайт статический, формы отправки нет: запись только через мессенджеры.
++- Сайт статический. Запись через мессенджеры и по телефону; отправка результатов подбора в таблицу по умолчанию выключена (см. [RESULTS_TABLE.md](RESULTS_TABLE.md)).
++- WhatsApp и Instagram в России недоступны без VPN, поэтому главной кнопкой остаётся Telegram, а рядом есть звонок. Порядок кнопок стоит пересматривать по целям Метрики.
+ - GitHub Pages иногда работает нестабильно из России. Запасные варианты: Cloudflare Pages, Netlify, российский хостинг.
+diff --git a/docs/RESULTS_TABLE.md b/docs/RESULTS_TABLE.md
+new file mode 100644
+index 0000000..3025f99
+--- /dev/null
++++ b/docs/RESULTS_TABLE.md
+@@ -0,0 +1,91 @@
++# Статистика подбора и контакты в таблице для Ольги
++
++Что получает Оля: таблицу, где видно, **сколько людей прошли подбор и с какими запросами**. Если человек сам захочет, он оставляет контакт, и тот добавляется в его же строку.
++
++## Как это устроено
++1. Человек проходит подбор. В конце, когда он видит результат, на таблицу уходит **одна строка без имени и контактов**: тема, где ощущается, как давно, насколько мешает, чего ждёт, формат встреч, рекомендованный формат, метка источника (`utm`) и случайный номер прохождения.
++2. Если включена форма контакта, под результатом есть необязательный блок «Оставить контакт»: имя (необязательно), телефон или Telegram, галочка согласия (не стоит заранее) и ссылка на политику.
++3. Контакт уходит отдельным запросом с тем же номером прохождения и **дописывается в ту же строку**. Если первая отправка не дошла, строка создаётся целиком.
++
++Пока `RESULTS_ENDPOINT` пуст, сайт ничего не отправляет и честно пишет «Ответы нигде не сохраняются». Когда адрес заполнен, текст над подбором и под результатом сам меняется на «Ответы без имени и контактов попадают в обезличенную статистику. Контакт оставляете только вы сами».
++
++Если форма контакта выключена, Оля всё равно получает суть: кнопка «Написать в Telegram» в результате открывает чат с готовым сообщением (тема, подходящий формат, удобный формат встреч).
++
++## Настройка (Google Таблицы, около 10 минут, бесплатно)
++1. Создайте Google Таблицу. Откройте Расширения → Apps Script.
++2. Вставьте код ниже. Нажмите Развернуть → Новое развёртывание → Веб-приложение. Выполнять от своего имени, доступ: все.
++3. Скопируйте адрес веб-приложения в `RESULTS_ENDPOINT` в начале `assets/js/main.js`. Статистика заработает сразу.
++4. Чтобы появилась форма контакта, добавьте адрес страницы политики в `PRIVACY_URL`.
++
++```javascript
++var SHEET = 'Ответы';
++var HEAD = ['Дата', 'ID', 'Тема', 'Где ощущается', 'Как давно', 'Насколько мешает',
++            'Чего ждёт', 'Формат встреч', 'Рекомендовано', 'Источник', 'Имя', 'Контакт'];
++
++// Значения, начинающиеся с = + - @, Таблицы считают формулой: экранируем
++function safe(v) {
++  v = String(v == null ? '' : v).slice(0, 200);
++  return /^[=+\-@]/.test(v) ? "'" + v : v;
++}
++
++function reply(t) { return ContentService.createTextOutput(t); }
++
++function findRow(sh, id) {
++  var n = Math.max(sh.getLastRow() - 1, 1);
++  var f = sh.getRange(2, 2, n, 1).createTextFinder(id).matchEntireCell(true).findNext();
++  return f ? f.getRow() : 0;
++}
++
++function doPost(e) {
++  var lock = LockService.getScriptLock();
++  lock.waitLock(10000);
++  try {
++    var d = JSON.parse(e.postData.contents);
++    if (!/^[a-z0-9]{8,40}$/.test(String(d.rid || ''))) return reply('bad');
++    var ss = SpreadsheetApp.getActive();
++    var sh = ss.getSheetByName(SHEET) || ss.insertSheet(SHEET);
++    if (sh.getLastRow() === 0) sh.appendRow(HEAD);
++
++    var row = findRow(sh, d.rid);
++    var base = [new Date(d.ts), d.rid, safe(d.topic), safe(d.area), safe(d.duration),
++                safe(d.interference), safe(d.need), safe(d.meet), safe(d.recommend), safe(d.src)];
++
++    if (d.kind === 'stat') {
++      if (!row) sh.appendRow(base.concat(['', '']));
++    } else if (d.kind === 'contact') {
++      if (row) sh.getRange(row, 11, 1, 2).setValues([[safe(d.name), safe(d.contact)]]);
++      else sh.appendRow(base.concat([safe(d.name), safe(d.contact)]));
++    }
++    return reply('ok');
++  } finally {
++    lock.releaseLock();
++  }
++}
++```
++
++## Сводная статистика
++Создайте второй лист «Статистика» и вставьте формулы (в русской локали разделитель аргументов `;`):
++
++- Запросы по темам: `=QUERY(Ответы!A2:L; "select C, count(B) where B is not null group by C order by count(B) desc label C 'Тема', count(B) 'Человек'"; 0)`
++- Рекомендованный формат: `=QUERY(Ответы!A2:L; "select I, count(B) where B is not null group by I label I 'Формат', count(B) 'Человек'"; 0)`
++- Сколько человек оставили контакт: `=COUNTA(Ответы!L2:L)`
++- Откуда пришли (по меткам `utm`): `=QUERY(Ответы!A2:L; "select J, count(B) where B is not null group by J label J 'Источник', count(B) 'Человек'"; 0)`
++
++Доля оставивших контакт = контакты ÷ все строки. Сколько людей начали подбор и не дошли до конца, видно в Яндекс Метрике по целям `quiz_start` и `quiz_done`.
++
++## Что стоит знать
++- Номер прохождения создаётся заново при каждом «Пройти заново», поэтому один человек, прошедший подбор дважды, попадёт в статистику дважды.
++- Ответ веб-приложения браузер не отдаёт сайту (так работает Apps Script). «Отправлено» значит «запрос ушёл без сетевой ошибки». Проверяйте результат в самой таблице.
++- Адрес приёма открыт всем, поэтому кто-то может записать в таблицу мусор. Скрипт принимает только корректный номер прохождения и обрезает значения, а форма имеет скрытое поле от ботов. Этого достаточно для небольшого сайта; при росте переходите на свой сервер.
++- Ссылки на метки удобно ставить в био Instagram и VK: `https://steelykt.github.io/psychologist-site/?utm_source=instagram`.
++
++## Конфиденциальность (важно)
++- Строка статистики без имени и контактов не позволяет узнать человека, но ответы касаются самочувствия. Ставьте её только при условии, что в тексте над подбором стоит уведомление (оно уже есть).
++- Контакт вместе с ответами о состоянии это персональные данные, а сведения о психологическом состоянии могут относиться к специальным категориям. Google хранит данные за пределами России. Для хранения контактов обычно нужны российское хранение, письменное согласие и оператор персональных данных. Практичный путь: Яндекс Облако (Cloud Functions и управляемая база) или форма в Яндекс 360. Код сайта менять не придётся, `RESULTS_ENDPOINT` принимает те же JSON-запросы.
++- **Это не юридическая консультация.** Политику обработки данных и текст согласия должен проверить юрист.
++
++## Чек-лист перед включением
++- [ ] Таблица создана, скрипт развёрнут, адрес в `RESULTS_ENDPOINT`
++- [ ] Для формы контакта: страница политики и адрес в `PRIVACY_URL`, текст согласия проверен юристом (функция `buildSendForm` в `main.js`)
++- [ ] Принято решение, где хранятся контакты (Google или российский сервис)
++- [ ] Тестовое прохождение: строка появилась, контакт дописался в ту же строку
+diff --git a/index.html b/index.html
+index 62739a5..ee1c604 100644
+--- a/index.html
++++ b/index.html
+@@ -4,20 +4,21 @@
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+ <title>Ольга Охлопкова — психолог в Якутске</title>
+-<meta name="description" content="Ольга Охлопкова — психолог в Якутске. Индивидуальные консультации очно и онлайн: тревога, стресс, родительство, жизненные перемены. От 3000 ₽ за сеанс.">
++<meta name="description" content="Ольга Охлопкова — психолог в Якутске. Индивидуальные консультации очно и онлайн: тревога, стресс, родительство, жизненные перемены. От 2500 ₽ за встречу.">
+ <meta name="theme-color" content="#faf6f1">
+ <meta property="og:type" content="website"><meta property="og:url" content="https://steelykt.github.io/psychologist-site/"><meta property="og:image" content="https://steelykt.github.io/psychologist-site/assets/img/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta property="og:locale" content="ru_RU">
+ <meta property="og:title" content="Ольга Охлопкова — психолог в Якутске">
+-<meta property="og:description" content="Бережная психологическая поддержка очно и онлайн. Запись в Telegram и WhatsApp.">
++<meta property="og:description" content="Бережная психологическая поддержка очно и онлайн. Запись в мессенджере или по телефону.">
+ <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌿%3C/text%3E%3C/svg%3E">
+ 
+ <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;500;700&display=swap&subset=cyrillic">
+ <link rel="stylesheet" href="assets/css/styles.css">
+-<script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"Ольга Охлопкова — психолог","description":"Индивидуальные психологические консультации очно и онлайн","url":"https://steelykt.github.io/psychologist-site/","image":"https://steelykt.github.io/psychologist-site/assets/img/og.jpg","areaServed":"Якутск","address":{"@type":"PostalAddress","addressLocality":"Якутск","addressCountry":"RU"},"priceRange":"от 3000 ₽","sameAs":["https://t.me/olyabud","https://www.instagram.com/olga.okhlopkova.bud"]}</script>
++<noscript><style>.rv{opacity:1;transform:none}</style></noscript>
++<script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"Ольга Охлопкова — психолог","description":"Индивидуальные психологические консультации очно и онлайн","url":"https://steelykt.github.io/psychologist-site/","image":"https://steelykt.github.io/psychologist-site/assets/img/og.jpg","areaServed":"Якутск","address":{"@type":"PostalAddress","addressLocality":"Якутск","addressCountry":"RU"},"priceRange":"от 2500 ₽","sameAs":["https://t.me/olyabud","https://www.instagram.com/olga.okhlopkova.bud","https://vk.ru/byolgaokhlopkova"]}</script>
+ </head>
+ <body>
+-<a class="skip" href="#main">К содержимому</a><nav><div class="w"><b>Ольга Охлопкова</b><div class="l"><a href="#about">Обо мне</a><a href="#help">С чем помогаю</a><a href="#mood">Самопроверка</a><a href="#price">Стоимость</a><a href="#path">Путь</a><a href="#faq">Вопросы</a></div><div class="row"><button class="tg mn" id="mn" type="button" aria-label="Меню" aria-expanded="false" aria-controls="mp">☰</button><button class="tg" id="tg" aria-label="Сменить тему">◐</button><a class="btn" href="#contact" style="padding:12px 26px;min-height:48px">Записаться</a></div></div><div class="mp" id="mp" hidden><a href="#about">Обо мне</a><a href="#help">С чем помогаю</a><a href="#mood">Самопроверка</a><a href="#price">Стоимость</a><a href="#path">Путь</a><a href="#faq">Вопросы</a></div></nav>
++<a class="skip" href="#main">К содержимому</a><nav><div class="w"><b>Ольга Охлопкова</b><div class="l"><a href="#about">Обо мне</a><a href="#help">С чем помогаю</a><a href="#mood">С чего начать</a><a href="#price">Стоимость</a><a href="#path">Путь</a><a href="#faq">Вопросы</a></div><div class="row"><button class="tg mn" id="mn" type="button" aria-label="Меню" aria-expanded="false" aria-controls="mp">☰</button><button class="tg" id="tg" aria-label="Сменить тему">◐</button><a class="btn" href="#contact" style="padding:12px 26px;min-height:48px">Записаться</a></div></div><div class="mp" id="mp" hidden><a href="#about">Обо мне</a><a href="#help">С чем помогаю</a><a href="#mood">С чего начать</a><a href="#price">Стоимость</a><a href="#path">Путь</a><a href="#faq">Вопросы</a></div></nav>
+ 
+ <main id="main">
+ <section class="w hero">
+@@ -25,9 +26,9 @@
+ <div class="eyebrow">Психолог · Якутск · онлайн и очно</div>
+ <h1>Пространство, где можно выдохнуть</h1>
+ <p>Помогаю взрослым и родителям разобраться в чувствах, снизить тревогу и вернуть опору. Бережно, без осуждения и в вашем темпе.</p>
+-<div class="row"><a class="btn" href="#contact">Записаться на встречу</a></div><div class="chips"><span>Магистр психологии</span><span>Очно и онлайн</span><span>От 3000 ₽ за сеанс</span></div>
++<div class="row"><a class="btn" href="#contact">Записаться на встречу</a></div><div class="chips"><span>Магистр психологии</span><span>КПТ</span><span>Очно и онлайн</span><span>От 2500 ₽ за встречу</span></div>
+ </div>
+-<div><div class="ph" id="ph"><div class="rg" aria-hidden="true"><i class="r r1"></i><i class="r r2"></i><i class="r r3"></i></div><img src="assets/img/hero-portrait.jpg" alt="Ольга Охлопкова, психолог" width="600" height="750" fetchpriority="high" decoding="async"></div><div class="bx"><div class="bl" id="bl" aria-live="polite">Хотите выдохнуть?</div><div class="bn" id="bn" aria-hidden="true"></div><div class="bs" id="bs">Минута дыхания: вдох 4 секунды, пауза, выдох 6</div><button type="button" class="btn o" id="bgo">Подышать вместе</button></div></div>
++<div><div class="ph" id="ph"><div class="rg" aria-hidden="true"><i class="r r1"></i><i class="r r2"></i><i class="r r3"></i></div><img src="assets/img/hero-portrait.jpg" alt="Ольга Охлопкова, психолог" width="600" height="750" fetchpriority="high" decoding="async"></div><div class="bx"><div class="bl" id="bl" aria-live="polite">Хотите выдохнуть?</div><div class="bn" id="bn" aria-hidden="true">4 · 2 · 6</div><div class="bs" id="bs">Вдох, пауза и выдох в секундах. Меньше минуты.</div><div class="row bb"><button type="button" class="btn o" id="bgo">Подышать вместе</button><a class="btn" id="bmood" href="#mood" hidden>Подобрать формат</a></div></div></div>
+ </section>
+ 
+ <section id="about" class="alt"><div class="w rv ab"><figure class="fg"><img loading="lazy" src="assets/img/about-mother-son.jpg" alt="Ольга с сыном на кухне" width="640" height="800" decoding="async"><figcaption>Психолог, мама и человек, который умеет слушать</figcaption></figure><div>
+@@ -43,12 +44,15 @@
+ <div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14"/><path d="M5 19c3-4 6-6 9-8"/></svg></div><h3>Тревога и стресс</h3><p>Научимся замечать напряжение и возвращать себе спокойствие.</p></div>
+ <div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.600-7 10-7 10z"/></svg></div><h3>Родительство</h3><p>Выгорание, чувство вины, отношения с ребёнком и в паре.</p></div>
+ <div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.500 8.500l-2 5-5 2 2-5z"/></svg></div><h3>Жизненные перемены</h3><p>Смена работы, роли, города, поиск своего направления.</p></div>
+-<div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg></div><h3>Самооценка</h3><p>Опора на себя и границы в отношениях.</p></div>
++<div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.500"/><path d="M5 20c0-4 3-6.500 7-6.500s7 2.500 7 6.500"/></svg></div><h3>Самооценка</h3><p>Опора на себя и границы в отношениях.</p></div>
+ </div></section>
+ 
+-<section id="mood" class="alt"><div class="w rv"><div class="eyebrow">Самопроверка · 1 минута</div><h2>Что вам сейчас важнее всего?</h2><p style="color:var(--mute);max-width:36em">Пять вопросов без регистрации. Ответы нигде не сохраняются. Это не диагностика, а повод задуматься.</p><div class="qz" id="qz" aria-live="polite"></div></div></section>
++<section id="mood" class="alt"><div class="w rv"><div class="eyebrow">Подбор · 1 минута</div><h2>С чего начать?</h2><p id="qintro" style="color:var(--mute);max-width:36em">Шесть коротких вопросов без регистрации. Это не диагностика: мы подскажем, какая тема и какой формат встреч вам, возможно, подойдут. Ответы нигде не сохраняются.</p><div class="qz" id="qz"><noscript>Для подбора нужен включённый JavaScript. Напишите Ольге, и вместе подберёте формат.</noscript></div><p class="qn cr">Если сейчас очень тяжело, не ждите записи: звоните 112 или обращайтесь в местную службу экстренной психологической помощи.</p></div></section>
+ <section id="steps" class="w rv"><div class="eyebrow">Как проходит работа</div><h2>Три простых шага</h2><div class="cards"><div class="card"><div class="ic">1</div><h3>Вы пишете</h3><p>Коротко расскажите, с чем хотите прийти. Подробности не нужны.</p></div><div class="card"><div class="ic">2</div><h3>Знакомимся</h3><p>Обсудим запрос, формат (очно или онлайн) и удобное время.</p></div><div class="card"><div class="ic">3</div><h3>Работаем</h3><p>Встречи в вашем темпе, бережно и конфиденциально.</p></div></div></section>
+-<section id="price" class="w rv"><div class="eyebrow">Стоимость</div><h2>Форматы и стоимость</h2><div class="cards"><div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg></div><h3>Индивидуальная консультация</h3><div class="price" style="margin:.5em 0">от 3000 ₽</div><p>За один сеанс. Очно в Якутске или онлайн. Точный формат и расписание обсудим при знакомстве.</p><a class="btn" href="#contact" style="margin-top:20px">Записаться</a></div></div></section>
++<section id="price" class="w rv"><div class="eyebrow">Стоимость</div><h2>Форматы и стоимость</h2><div class="cards c2">
++<div class="card" id="p-one"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg></div><h3>Разовая консультация</h3><div class="price">от 3000 ₽<small>за встречу</small></div><p>Одна встреча, чтобы разобраться в конкретной ситуации. Длительность не меньше часа и зависит от вашего запроса: иногда хватает часа, иногда нужно до 3 часов. Время и итоговую стоимость обсуждаем заранее.</p><p>Очно в Якутске или онлайн.</p><a class="btn" href="#contact">Записаться</a></div>
++<div class="card" id="p-series"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l8 4-8 4-8-4z"/><path d="M4 12l8 4 8-4"/><path d="M4 16l8 4 8-4"/></svg></div><h3>Серия встреч</h3><div class="price">от 2500 ₽<small>за встречу</small></div><p>Системная работа: несколько встреч, каждая по 50 минут. Подходит, если хочется не только разобраться в ситуации, но и научиться справляться в целом. Сколько встреч нужно, определяем вместе после знакомства, от этого зависит итоговая стоимость.</p><p>Очно в Якутске или онлайн.</p><a class="btn o" href="#contact">Обсудить серию</a></div>
++</div></section>
+ <section id="principles" class="alt"><div class="w rv"><div class="eyebrow">Принципы работы</div><h2>На чём строится наша работа</h2><div class="cards c4"><div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div><h3>Конфиденциальность</h3><p>Всё, что обсуждается на встречах, остаётся между нами.</p></div><div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.500 14a4.500 4.500 0 0 0 7 0"/><path d="M9 9.500h.01M15 9.500h.01"/></svg></div><h3>Без осуждения</h3><p>Можно говорить о том, о чём страшно или неловко.</p></div><div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h3>Ваш темп</h3><p>Идём так быстро, как вам комфортно, и вместе ставим цели.</p></div><div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z"/></svg></div><h3>Уважение к границам</h3><p>Вы решаете, о чём говорить и что менять в своей жизни.</p></div></div></div></section>
+ 
+ <section id="path" class="w rv">
+@@ -59,25 +63,29 @@
+ 
+ <li><small>Сбербанк</small><h3>Работа с клиентами и командой</h3></li>
+ <li><small>Предпринимательство</small><h3>ИП: работа с людьми, организация и проведение клубов, поездок и мероприятий</h3></li>
+-<li><small>Сейчас</small><h3>Психолог, «Тренировочная квартира»</h3><p style="color:var(--mute);margin:.4em 0 0;max-width:38em">ГБУ РС(Я) «РКЦСО», Якутск. Помогаю участникам программы с ментальными особенностями развивать навыки самостоятельной жизни и поддерживаю их на этом пути. Параллельно веду частную практику.</p></li>
++<li><small>Сейчас</small><h3>Психолог, «Тренировочная квартира»</h3><p style="color:var(--mute);margin:.4em 0 0;max-width:38em">ГБУ РС(Я) «Республиканский комплексный центр социального обслуживания», Якутск. Помогаю участникам программы с ментальными особенностями развивать навыки самостоятельной жизни и поддерживаю их на этом пути. Параллельно веду частную практику.</p></li>
+ </ul></section>
+ 
+ <section id="faq" class="alt"><div class="w rv">
+ <div class="eyebrow">Вопросы</div><h2>Частые вопросы</h2>
+ <details><summary>Как проходит первая встреча?</summary><p>Знакомимся, обсуждаем ваш запрос и договариваемся о формате. Никаких обязательств.</p></details>
++<details><summary>Чем КПТ отличается от обычного разговора?</summary><p>КПТ — когнитивно-поведенческая терапия. Это работа с тем, что происходит у вас в голове, и с тем, как это влияет на вас и ваши поступки. На встрече мы разбираем то, что вас беспокоит, и ищем другие способы справляться. Это не просто разговор, а совместная работа с конкретной ситуацией.</p></details>
++<details><summary>Сколько длится встреча и сколько она стоит?</summary><p>Разовая консультация идёт не меньше часа, а сколько точно, зависит от вашего запроса (до 3 часов), и стоит от 3000 ₽. В серии каждая встреча идёт 50 минут и стоит от 2500 ₽; число встреч определяем вместе. Всё обсуждаем заранее.</p></details>
++<details><summary>Как записаться?</summary><p>Напишите в Telegram или позвоните. Коротко расскажите, с чем хотите прийти, и мы подберём время. Подробности не нужны.</p></details>
+ <details><summary>Это конфиденциально?</summary><p>Да. Всё, что обсуждается на встречах, остаётся между нами.</p></details>
+ <details><summary>Можно онлайн?</summary><p>Да, встречи проходят в Якутске и онлайн.</p></details>
+ </div></section>
+ 
+ <section id="contact" class="w rv" style="text-align:center">
+ <h2>Сделайте первый шаг</h2>
+-<p style="color:var(--mute);max-width:32em;margin:0 auto 26px">Напишите мне, и мы подберём удобное время.</p>
+-<div class="row" style="justify-content:center"><a class="btn" href="https://t.me/olyabud" rel="noopener">Написать в Telegram</a><a class="btn o" href="https://wa.me/79644156843" rel="noopener">WhatsApp</a><a class="btn o" href="https://www.instagram.com/olga.okhlopkova.bud" rel="noopener">Instagram</a></div>
++<p style="color:var(--mute);max-width:32em;margin:0 auto 26px">Напишите или позвоните, и мы подберём удобное время.</p>
++<div class="row" style="justify-content:center"><a class="btn" href="https://t.me/olyabud" rel="noopener" data-goal="tg">Написать в Telegram</a><a class="btn o" href="#" rel="noopener" data-max data-goal="max" hidden>MAX</a><a class="btn o" href="#" rel="noopener" data-vk data-goal="vk" hidden>VK</a><a class="btn o" href="tel:+79644156843" data-goal="tel">Позвонить</a><a class="btn o" href="https://wa.me/79644156843" rel="noopener" data-goal="wa">WhatsApp*</a><a class="btn o" href="https://www.instagram.com/olga.okhlopkova.bud" rel="noopener" data-goal="ig">Instagram*</a></div>
++<p class="qn" style="margin-top:18px">* Деятельность компании Meta (Instagram, WhatsApp) запрещена в России, компания признана экстремистской организацией.</p>
+ </section>
+ </main>
+ <footer><div class="w">© Ольга Охлопкова. Психолог, Якутск. Сайт не заменяет медицинскую помощь; в кризисной ситуации звоните 112 или обратитесь в местную службу экстренной психологической помощи.</div></footer>
+ 
+-<div class="mb"><a class="btn" href="https://t.me/olyabud" rel="noopener">Telegram</a><a class="btn o" href="https://wa.me/79644156843" rel="noopener">WhatsApp</a></div>
++<div class="mb"><a class="btn" href="https://t.me/olyabud" rel="noopener" data-goal="tg_bar">Telegram</a><a class="btn o" href="tel:+79644156843" data-goal="tel_bar">Позвонить</a><a class="btn o" href="https://wa.me/79644156843" rel="noopener" data-goal="wa_bar" data-nomax>WhatsApp*</a><a class="btn o" href="#" rel="noopener" data-max data-goal="max_bar" hidden>MAX</a></div>
+ <script src="assets/js/main.js" defer></script>
+ </body>
+ </html>
