@@ -23,11 +23,11 @@ section.w{padding-top:var(--sec);padding-bottom:var(--sec)}
 section.w.hero{padding-top:40px;padding-bottom:var(--sec)}
 nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
 nav .w{display:flex;align-items:center;justify-content:space-between;height:60px;gap:12px}
-nav b{font-family:"Cormorant Garamond",Georgia,serif;font-size:1.3rem}
+nav b{font-family:"Cormorant Garamond",Georgia,serif;font-size:1.3rem;white-space:nowrap}
 nav .l{display:flex;gap:26px;font-size:1rem}
-nav .l a{text-decoration:none;color:var(--mute)}
+nav .l a{text-decoration:none;color:var(--mute);white-space:nowrap}
 nav .l a:hover{color:var(--acc)}
-@media(max-width:700px){nav .l{display:none}
+@media(max-width:1020px){nav .l{display:none}
 }
 .btn{display:inline-block;background:var(--acc);color:var(--on-acc);border:0;border-radius:99px;padding:14px 28px;font:700 1rem Manrope,sans-serif;text-decoration:none;cursor:pointer;min-height:48px;box-shadow:0 12px 26px -14px var(--acc);transition:transform .2s}
 .btn:hover{transform:translateY(-2px)}
@@ -89,7 +89,7 @@ footer{padding:40px 0;color:var(--mute);font-size:.88rem;border-top:1px solid va
 .mb{display:none}
 @media(max-width:700px){.mb{display:flex;gap:10px;position:fixed;left:0;right:0;bottom:0;z-index:30;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(12px);border-top:1px solid var(--line)}
 .mb .btn{flex:1;text-align:center;padding:12px 6px;font-size:.92rem;white-space:nowrap}
-body{padding-bottom:76px}
+body{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
 }
 .ph{position:relative;width:100%;max-width:460px;aspect-ratio:1;margin:auto;display:grid;place-items:center;--d:4s}
 .rg{position:absolute;inset:0;animation:amb 7s ease-in-out infinite}
@@ -127,10 +127,11 @@ body{padding-bottom:76px}
 .mp[hidden]{display:none}
 .mp a{display:block;padding:14px 0;text-decoration:none;font-weight:700;border-top:1px solid var(--line)}
 .mp a:first-child{border-top:0}
-@media(max-width:700px){.mn{display:inline-block}
-nav .row .btn{display:none}
+@media(max-width:1020px){.mn{display:inline-block}
 }
-@media(min-width:701px){.mp{display:none!important}
+@media(max-width:700px){nav .row .btn{display:none}
+}
+@media(min-width:1021px){.mp{display:none!important}
 }
 .rv{opacity:0;transform:translateY(24px);transition:.7s}
 .rv.in{opacity:1;transform:none}
