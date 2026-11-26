@@ -1,8 +1,8 @@
 diff --git a/CHANGELOG.md b/CHANGELOG.md
-index 3e805c0..4e4aab4 100644
+index 3e805c0..727792a 100644
 --- a/CHANGELOG.md
 +++ b/CHANGELOG.md
-@@ -1,5 +1,21 @@
+@@ -1,5 +1,25 @@
  # История версий
  
 +## 1.1.0 — 2026-11-26
@@ -14,7 +14,11 @@ index 3e805c0..4e4aab4 100644
 +- **Статистика для Ольги в таблице:** после каждого прохождения уходит строка без имени и контактов (тема, давность, влияние, ожидания, формат). Если человек сам захочет, он оставляет контакт, и тот дописывается в его строку. По умолчанию выключено, см. `docs/RESULTS_TABLE.md`.
 +- **Цены:** «Разовая консультация» (от 3000 ₽, не меньше часа и по запросу до 3 часов) и «Серия встреч» (от 2500 ₽ за встречу, каждая 50 минут, число встреч определяется вместе).
 +- Контакты: «Позвонить», кнопка VK и кнопка MAX (MAX появится, когда в `main.js` будет указана ссылка), пометка про Meta у WhatsApp и Instagram, строка про экстренную помощь рядом с подбором.
-+- Первый экран: чип «КПТ», цифры одной высоты (в счётчике дыхания, цене, статистике), слот счётчика в состоянии покоя показывает «4 · 2 · 6», фаза «Пауза» вместо «Задержите дыхание», в конце упражнения кнопка «Подобрать формат».
++- **MAX главный канал** (ссылка добавлена): кнопка с заливкой стоит первой, Telegram второй, в нижней панели на телефоне MAX заменяет WhatsApp. Переключатель `PRIMARY` в `main.js` возвращает Telegram. В результате подбора сообщение показывается готовым с кнопкой «Скопировать» (проверенной ссылки MAX с готовым текстом нет).
++- Российский вариант контакта без своего сервера: форма в Яндекс Формах (`CONTACT_FORM_URL`), ответы подбора подставляются в неё через параметры ссылки.
++- Образование: «Магистр психологии, диплом с отличием» вместо «психолого-педагогическое образование».
++- Для поиска и нейроответов: разметка `FAQPage`, ссылки на MAX и VK в `sameAs`; инструкция по домену, хостингу, Яндекс Вебмастеру и Яндекс Бизнесу в `docs/HOSTING_AND_SEARCH.md`.
++- Первый экран: чип «КПТ», убран дублирующий чип «Очно и онлайн», цифры одной высоты (в счётчике дыхания, цене, статистике), слот счётчика в состоянии покоя показывает «4 · 2 · 6», фаза «Пауза» вместо «Задержите дыхание», в конце упражнения кнопка «Подобрать формат».
 +- FAQ: «Чем КПТ отличается от обычного разговора?» (текст Ольги), стоимость и длительность, как записаться; собственный индикатор раскрытия.
 +- Карточки одной высоты заголовка, новая иконка у «Самооценки», расшифровано название центра в блоке «Путь».
 +- Цели Яндекс Метрики через `data-goal` (включаются номером счётчика в `main.js`).
@@ -52,7 +56,7 @@ index c5e4bc6..ebb66c9 100644
  ├── docs/
  │   ├── CONTENT.md          # тексты, цены, контакты: где что менять
 diff --git a/assets/css/styles.css b/assets/css/styles.css
-index c15c6e5..4a079a2 100644
+index c15c6e5..1e70f0a 100644
 --- a/assets/css/styles.css
 +++ b/assets/css/styles.css
 @@ -3,13 +3,12 @@
@@ -94,7 +98,7 @@ index c15c6e5..4a079a2 100644
  .card{background:var(--surf);border:1px solid var(--line);border-radius:22px;padding:28px}
  .card p{color:var(--mute);margin:.6em 0 0}
 +.card h3{overflow-wrap:break-word;hyphens:auto}
-+@media(min-width:1001px){.c4 .card h3{min-height:2.2em}
++@media(min-width:1001px){.c4 .card h3{min-height:2.2em;font-size:1.32rem}
 +}
  .ic{width:46px;height:46px;border-radius:14px;background:var(--soft);display:grid;place-items:center;font-size:1.4rem;margin-bottom:14px}
  .alt{background:var(--soft)}
@@ -153,7 +157,7 @@ index c15c6e5..4a079a2 100644
  .bs{color:var(--mute);font-size:.97rem;margin:6px 0 16px;min-height:1.4em}
  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}
  .chips span{background:var(--soft);border-radius:99px;padding:7px 15px;font-size:.92rem}
-@@ -133,3 +138,23 @@ nav .row .btn{display:none}
+@@ -133,3 +138,26 @@ nav .row .btn{display:none}
  .rv{opacity:1;transform:none}
  }
  
@@ -177,11 +181,14 @@ index c15c6e5..4a079a2 100644
 +.fm .btn{justify-self:start}
 +.hp{position:absolute;left:-9999px}
 +.hv{color:var(--ink);font-weight:700}
++.qz h3.res{font-size:1.75rem;line-height:1.15}
++.msg{margin:16px 0 0;padding:14px 16px;border:1.5px dashed var(--line);border-radius:14px}
++.msg p{margin:.4em 0 .2em;color:var(--ink);font-size:.95rem}
 diff --git a/assets/js/main.js b/assets/js/main.js
-index 9d38260..cdac073 100644
+index 9d38260..544a997 100644
 --- a/assets/js/main.js
 +++ b/assets/js/main.js
-@@ -1,29 +1,483 @@
+@@ -1,29 +1,563 @@
  /* Ольга Охлопкова — личный сайт психолога
 -   Скрипты: тема, дыхательное упражнение, самопроверка, мобильное меню, появление блоков. */
 -
@@ -216,9 +223,11 @@ index 9d38260..cdac073 100644
 +
 +/* ---------- Настройки: меняются только здесь ---------- */
 +var CONFIG = {
-+  // Ссылка на профиль в MAX. Пока пусто, кнопка MAX скрыта,
++  // Ссылка на профиль в MAX. Пустое значение скрывает кнопку MAX,
 +  // а в нижней панели на телефоне остаётся WhatsApp.
-+  MAX_URL: '',
++  MAX_URL: 'https://max.ru/u/f9LHodD0cOLHAd9Jivl6wAX8x4Xj52RtUhsaVlxgNWQnUhm8Ueri8YgKtgk',
++  // Главный канал связи: 'max' или 'tg'. Главный выделяется заливкой и стоит первым.
++  PRIMARY: 'max',
 +  // Ссылка на страницу в VK. Пока пусто, кнопка VK скрыта.
 +  VK_URL: 'https://vk.ru/byolgaokhlopkova',
 +  // Номер счётчика Яндекс Метрики. 0 — цели никуда не отправляются.
@@ -229,7 +238,13 @@ index 9d38260..cdac073 100644
 +  // PRIVACY_URL: страница политики. Заполнено вместе с адресом — под результатом появляется
 +  // необязательная форма «Оставить контакт», и контакт добавляется к той же строке статистики.
 +  RESULTS_ENDPOINT: '',
-+  PRIVACY_URL: ''
++  PRIVACY_URL: '',
++  // Российский вариант без своего сервера: форма в Яндекс Формах. Под результатом появится
++  // кнопка «Оставить контакт», она открывает форму с уже подставленными ответами.
++  // CONTACT_FORM_FIELDS: какому вопросу формы соответствует каждый ответ (идентификаторы
++  // из настройки предзаполнения в Яндекс Формах). Пустые поля пропускаются.
++  CONTACT_FORM_URL: '',
++  CONTACT_FORM_FIELDS: { topic: '', area: '', duration: '', interference: '', need: '', meet: '', recommend: '', src: '' }
 +};
 +
 +var HT = document.documentElement;
@@ -269,6 +284,11 @@ index 9d38260..cdac073 100644
 +    show('data-max', CONFIG.MAX_URL);
 +    // WhatsApp в нижней панели на телефоне уступает место MAX
 +    [].forEach.call(document.querySelectorAll('[data-nomax]'), function (a) { a.hidden = true; });
++    if (CONFIG.PRIMARY === 'max') {
++      // MAX главный: заливка у него, Telegram становится вторым (контурным)
++      [].forEach.call(document.querySelectorAll('[data-max]'), function (a) { a.classList.remove('o'); });
++      [].forEach.call(document.querySelectorAll('[data-tg]'), function (a) { a.classList.add('o'); });
++    }
 +  }
 +  if (CONFIG.VK_URL) show('data-vk', CONFIG.VK_URL);
 +})();
@@ -491,7 +511,7 @@ index 9d38260..cdac073 100644
 +  var head = el('div', 'qh');
 +  head.tabIndex = -1;
 +  head.appendChild(el('div', 'qn', 'Ваш результат'));
-+  head.appendChild(el('h3', '', topic[0]));
++  head.appendChild(el('h3', 'res', topic[0]));
 +  qz.appendChild(head);
 +
 +  var p = el('p', '', topic[1]);
@@ -510,11 +530,18 @@ index 9d38260..cdac073 100644
 +    qz.appendChild(el('p', 'qn cr hv', 'Если сейчас очень тяжело, не ждите записи: звоните 112 или обращайтесь в местную службу экстренной психологической помощи.'));
 +  }
 +
-+  // Сообщение в Telegram уже написано: диалог не начинается с нуля
++  // Готовое сообщение: диалог не начинается с нуля
 +  var text = 'Здравствуйте! Хочу обсудить запись. Тема: ' + topic[0] + '. Подойдёт: ' + sum.recommend.toLowerCase() + '. Формат: ' + sum.meet.toLowerCase() + '.';
++  var maxFirst = !!CONFIG.MAX_URL && CONFIG.PRIMARY === 'max';
 +  var row = el('div', 'row');
-+  var a = el('a', 'btn', 'Написать в Telegram');
-+  a.href = 'https://t.me/olyabud?text=' + encodeURIComponent(text);
++  var a;
++  if (maxFirst) {
++    a = el('a', 'btn', 'Написать в MAX');
++    a.href = CONFIG.MAX_URL;
++  } else {
++    a = el('a', 'btn', 'Написать в Telegram');
++    a.href = 'https://t.me/olyabud?text=' + encodeURIComponent(text);
++  }
 +  a.rel = 'noopener';
 +  a.setAttribute('data-goal', 'quiz_cta');
 +  var more = el('a', 'btn o', 'Другие способы связи');
@@ -523,7 +550,11 @@ index 9d38260..cdac073 100644
 +  row.appendChild(more);
 +  qz.appendChild(row);
 +
++  // В MAX нет проверенной ссылки с готовым текстом, поэтому сообщение показываем и даём скопировать
++  if (maxFirst) qz.appendChild(buildMessageBox(text));
++
 +  if (contactEnabled() && rid) qz.appendChild(buildSendForm(sum, rid));
++  else if (CONFIG.CONTACT_FORM_URL) qz.appendChild(buildFormLink(sum, rid));
 +
 +  var again = el('button', 'lk', 'Пройти заново');
 +  again.type = 'button';
@@ -533,6 +564,62 @@ index 9d38260..cdac073 100644
 +  var note = 'Это не диагноз и не заменяет консультацию специалиста.';
 +  if (statsEnabled()) note += ' Ваши ответы без имени и контактов учтены в обезличенной статистике.';
 +  qz.appendChild(el('p', 'qn', note));
++}
++
++/* Готовое сообщение с кнопкой «Скопировать» (для мессенджеров без ссылки с текстом) */
++function buildMessageBox(text) {
++  var box = el('div', 'msg');
++  box.appendChild(el('span', 'qn', 'Готовое сообщение, его можно вставить в чат:'));
++  box.appendChild(el('p', '', text));
++  var btn = el('button', 'lk', 'Скопировать');
++  btn.type = 'button';
++  var st = el('span', 'qn');
++  st.setAttribute('role', 'status');
++  btn.onclick = function () {
++    function done() { st.textContent = ' Скопировано'; }
++    function fail() { st.textContent = ' Не удалось, выделите текст и скопируйте вручную'; }
++    if (navigator.clipboard && navigator.clipboard.writeText) {
++      navigator.clipboard.writeText(text).then(done, fail);
++    } else {
++      var ta = el('textarea');
++      ta.value = text;
++      ta.style.position = 'fixed';
++      ta.style.opacity = '0';
++      document.body.appendChild(ta);
++      ta.select();
++      var ok = false;
++      try { ok = document.execCommand('copy'); } catch (e) {}
++      document.body.removeChild(ta);
++      if (ok) done(); else fail();
++    }
++  };
++  box.appendChild(btn);
++  box.appendChild(st);
++  return box;
++}
++
++/* Контакт через Яндекс Формы: форма открывается в новой вкладке с подставленными ответами,
++   отправляет её сам человек (Формы хранят данные в России). */
++function buildFormLink(sum, rid) {
++  var box = el('div', 'fm');
++  box.appendChild(el('b', '', 'Оставить контакт'));
++  box.appendChild(el('span', 'qn', 'Необязательно. Откроется форма Яндекса: ответы подбора уже подставлены, а отправите её только вы сами.'));
++  var params = [];
++  var map = CONFIG.CONTACT_FORM_FIELDS || {};
++  var data = {};
++  Object.keys(sum).forEach(function (k) { data[k] = sum[k]; });
++  data.src = location.search.replace(/^\?/, '').slice(0, 200);
++  Object.keys(map).forEach(function (k) {
++    if (map[k] && data[k]) params.push(encodeURIComponent(map[k]) + '=' + encodeURIComponent(data[k]));
++  });
++  var url = CONFIG.CONTACT_FORM_URL + (params.length ? (CONFIG.CONTACT_FORM_URL.indexOf('?') < 0 ? '?' : '&') + params.join('&') : '');
++  var a = el('a', 'btn o', 'Оставить контакт');
++  a.href = url;
++  a.target = '_blank';
++  a.rel = 'noopener';
++  a.setAttribute('data-goal', 'quiz_form');
++  box.appendChild(a);
++  return box;
 +}
 +
 +/* Необязательный контакт. Строка статистики уже отправлена без имени; здесь человек
@@ -723,21 +810,23 @@ index 69b11a2..3e6ffe4 100644
 +- Статистика: строка без имени и контактов уходит после результата, контакт добавляется только по желанию человека и с согласием. Над подбором и под результатом написано, что именно сохраняется (видимость статуса, Нильсен).
 +- Формат «Серия встреч» назван по сути («несколько встреч по 50 минут»), а не «системный анализ»; число встреч не ограничено минимумом, чтобы не создавать барьер входа.
 diff --git a/docs/HANDOVER.md b/docs/HANDOVER.md
-index e26e891..75fa2d7 100644
+index e26e891..e8e45e7 100644
 --- a/docs/HANDOVER.md
 +++ b/docs/HANDOVER.md
-@@ -16,8 +16,20 @@
+@@ -16,8 +16,22 @@
  3. Добавьте у регистратора четыре A-записи (`185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`) и CNAME для `www` на `steelykt.github.io`.
  4. Замените адрес сайта в `og:url`, `og:image`, JSON-LD, `robots.txt` и `sitemap.xml`.
  
 +## Настройки в `assets/js/main.js` (блок `CONFIG` в начале файла)
 +| Параметр | Что делает |
 +|---|---|
-+| `MAX_URL` | Ссылка на профиль в MAX. Пока пусто, кнопка скрыта. Когда заполнено, MAX появляется в контактах и заменяет WhatsApp в нижней панели на телефоне |
++| `MAX_URL` | Ссылка на профиль в MAX (указана). Пустое значение скрывает кнопку; когда заполнено, MAX заменяет WhatsApp в нижней панели на телефоне |
++| `PRIMARY` | Главный канал: `'max'` или `'tg'`. Главный стоит первым и выделен заливкой |
 +| `VK_URL` | Ссылка на страницу в VK (сейчас `https://vk.ru/byolgaokhlopkova`). Пустое значение скрывает кнопку |
 +| `METRIKA_ID` | Номер счётчика Яндекс Метрики. Пока 0, цели не отправляются |
 +| `RESULTS_ENDPOINT` | Адрес таблицы для статистики подбора (без имён и контактов), см. [RESULTS_TABLE.md](RESULTS_TABLE.md) |
 +| `PRIVACY_URL` | Страница политики. Вместе с адресом включает форму «Оставить контакт» |
++| `CONTACT_FORM_URL`, `CONTACT_FORM_FIELDS` | Российская альтернатива: форма в Яндекс Формах. Подробности в [RESULTS_TABLE.md](RESULTS_TABLE.md) |
 +
  ## Аналитика
 -Добавьте код Яндекс Метрики перед `</head>`, баннер согласия на cookie и цели: нажатия на Telegram, WhatsApp, Instagram и завершение самопроверки.
@@ -748,13 +837,15 @@ index e26e891..75fa2d7 100644
  
  ## Чек-лист перед рекламой и продвижением
  - [ ] Указаны данные исполнителя (ФИО, статус, ИНН) и политика конфиденциальности
-@@ -26,8 +38,12 @@
+@@ -26,8 +40,14 @@
  - [ ] Указан номер местной службы экстренной психологической помощи
  - [ ] Проверены ссылки, меню и тест на реальных телефонах (iOS и Android)
  - [ ] Сайт добавлен в Яндекс Вебмастер, отправлен `sitemap.xml`
 -- [ ] Подключены Метрика и баннер cookie
 +- [ ] Подключены Метрика и баннер cookie, созданы цели
-+- [ ] Указана ссылка на MAX (или кнопка оставлена скрытой)
++- [x] Указаны ссылки на MAX и VK
++- [ ] Решено, остаётся ли MAX главным каналом (смотреть цели `max` и `tg` в Метрике)
++- [ ] Домен, хостинг, Яндекс Вебмастер и Яндекс Бизнес, см. [HOSTING_AND_SEARCH.md](HOSTING_AND_SEARCH.md)
 +- [ ] Оля подтвердила тексты про КПТ, форматы встреч и цены
 +- [ ] Если включается таблица: адрес в `RESULTS_ENDPOINT`; для формы контакта политика и текст согласия проверены юристом
  
@@ -763,12 +854,65 @@ index e26e891..75fa2d7 100644
 +- Сайт статический. Запись через мессенджеры и по телефону; отправка результатов подбора в таблицу по умолчанию выключена (см. [RESULTS_TABLE.md](RESULTS_TABLE.md)).
 +- WhatsApp и Instagram в России недоступны без VPN, поэтому главной кнопкой остаётся Telegram, а рядом есть звонок. Порядок кнопок стоит пересматривать по целям Метрики.
  - GitHub Pages иногда работает нестабильно из России. Запасные варианты: Cloudflare Pages, Netlify, российский хостинг.
+diff --git a/docs/HOSTING_AND_SEARCH.md b/docs/HOSTING_AND_SEARCH.md
+new file mode 100644
+index 0000000..955c7c4
+--- /dev/null
++++ b/docs/HOSTING_AND_SEARCH.md
+@@ -0,0 +1,47 @@
++# Размещение сайта и видимость в поиске, у Алисы и в умных колонках
++
++Данные собраны в ноябре 2026 года. Условия тарифов и доступность сервисов меняются, перед оплатой проверяйте их на сайтах провайдеров.
++
++## 1. Почему не оставлять только github.io
++
++- GitHub в России официально не заблокирован, но доступ нестабилен. Сбои были 5 мая и 14 июля 2026 года, а число отдельных страниц GitHub в реестре запрещённых резко выросло: больше, чем за весь прошлый год. Ещё блокируют подсети CDN, которые использует и GitHub Pages.
++- Адрес вида `steelykt.github.io/psychologist-site` не запоминается и не принадлежит Ольге: его нельзя вписать в визитку и объявление, а переезд потом сбросит накопленные позиции в поиске.
++- Для поиска и доверия лучше собственный домен `.ru` с названием по имени (например, с фамилией и словом «психолог»).
++
++## 2. Варианты размещения
++
++| Вариант | Стоимость | Плюсы | Минусы |
++|---|---|---|---|
++| **Домен .ru + российский хостинг** (Reg.ru, Beget, Timeweb и аналоги) | Домен около 800 ₽ в год, хостинг ориентировочно 200–350 ₽ в месяц | Доступен в России, свой адрес, почта на домене, поддержка на русском | Платно; цены проверьте |
++| **Бесплатные тарифы российских хостингов** (например, Beget, SpaceWeb) | 0 ₽ | Можно начать без затрат | Бывают ограничения и реклама, условия проверьте; свой домен всё равно платный |
++| **Yandex Cloud: Object Storage + домен** | По описанию автора на Хабре, в рамках бесплатных лимитов 0 ₽ в месяц, платите только за домен | Российская инфраструктура, масштабируется | Нужен платёжный аккаунт, настройка через консоль или CLI, сложнее для новичка |
++| **GitHub Pages** | 0 ₽ | Уже работает, удобно редактировать | Нестабилен из России, см. раздел 1; оставить как запасной адрес |
++| **Cloudflare Pages, Netlify, Vercel** | 0 ₽ | Удобны | На форумах пишут о частичных блокировках в России (не проверено), не делайте основой |
++
++**Рекомендация.** Основной сайт: домен `.ru` + российский хостинг, файлы заливаются через панель хостинга или FTP (сайт статический, переезд занимает около часа). GitHub Pages оставить зеркалом и местом хранения исходников.
++
++## 3. Как сделать, чтобы сайт находили (поиск, нейроответы, колонки)
++
++Что известно: ответ Алисы AI в Поиске собирается из страниц, которые поисковик уже нашёл. Отдельного «входа в Алису» нет, обычные требования к сайту те же. С апреля 2026 в Яндекс Вебмастере есть раздел «Видимость сайта в Алисе AI», где видно, по каким запросам сайт попадает в источники. Для локального бизнеса первый слой это Яндекс Бизнес и согласованные данные об организации; без карточки в Яндекс Бизнесе попасть в голосовые ответы по запросам «рядом» почти невозможно. Гарантий попадания никто не даёт.
++
++### Порядок действий
++1. **Свой домен с HTTPS.** Добавьте в `<head>` тег `<link rel="canonical" href="https://ваш-домен.ru/">`.
++2. **Яндекс Вебмастер.** Добавьте сайт, подтвердите права, загрузите `sitemap.xml`, укажите регион «Якутск». Следите за разделом «Видимость сайта в Алисе AI».
++3. **Яндекс Бизнес и Яндекс Карты.** Создайте карточку: название, вид услуг, телефон, сайт, режим работы, фото, перечень услуг (разовая консультация, серия встреч), онлайн-формат. Данные должны совпадать с сайтом слово в слово: телефон, имя, город, цены.
++4. **2ГИС** (в Якутске им пользуются) и, по желанию, Google Business Profile.
++5. **Содержание.** Алиса и Нейро берут ответы на вопросы. Нынешний FAQ это хорошо; для роста сделайте 3–5 отдельных страниц под реальные запросы: «психолог в Якутске», «КПТ в Якутске», «консультация психолога онлайн», «тревога и стресс», «родительство». Одностраничный сайт ограничивает видимость.
++6. **Разметка.** В код добавлены `ProfessionalService` и `FAQPage` (JSON-LD, ответы совпадают с видимым FAQ). Проверьте её в валидаторе микроразметки Яндекс Вебмастера.
++7. **Отзывы.** Когда они появятся, просите оставлять их в Яндекс Картах и 2ГИС: рейтинг и отзывы влияют на показ организации. Соблюдайте профессиональную этику: клиентов нельзя заставлять писать отзыв.
++8. **Метки и счётчик.** Подключите Яндекс Метрику (цели описаны в `HANDOVER.md`), в био Instagram, VK и MAX ставьте ссылку с меткой `?utm_source=...`.
++
++### Реалистичные сроки
++Индексация новой страницы занимает от нескольких дней до пары недель, заметные позиции по запросам формируются месяцами. Быстрее всех работает карточка в Яндекс Бизнесе и ссылки с уже живых страниц (VK, MAX, Instagram).
++
++## 4. Чек-лист переезда на домен
++- [ ] Куплен домен, подключён хостинг и HTTPS
++- [ ] Заменён адрес `https://steelykt.github.io/psychologist-site/` на новый в `index.html` (JSON-LD `url` и `image`), `sitemap.xml`, `robots.txt`
++- [ ] Добавлен тег `canonical`
++- [ ] На старом адресе (GitHub Pages) оставлена страница с пометкой «сайт переехал» и ссылкой на новый; GitHub Pages не умеет постоянные редиректы на другой домен
++- [ ] Обновлены ссылки в био Instagram, VK, MAX, в Telegram и на визитках
++- [ ] Сайт добавлен в Яндекс Вебмастер, карточка в Яндекс Бизнесе указывает на новый адрес
++- [ ] Счётчик Метрики установлен на новом домене
 diff --git a/docs/RESULTS_TABLE.md b/docs/RESULTS_TABLE.md
 new file mode 100644
-index 0000000..3025f99
+index 0000000..01f1a3e
 --- /dev/null
 +++ b/docs/RESULTS_TABLE.md
-@@ -0,0 +1,91 @@
+@@ -0,0 +1,106 @@
 +# Статистика подбора и контакты в таблице для Ольги
 +
 +Что получает Оля: таблицу, где видно, **сколько людей прошли подбор и с какими запросами**. Если человек сам захочет, он оставляет контакт, и тот добавляется в его же строку.
@@ -844,6 +988,21 @@ index 0000000..3025f99
 +
 +Доля оставивших контакт = контакты ÷ все строки. Сколько людей начали подбор и не дошли до конца, видно в Яндекс Метрике по целям `quiz_start` и `quiz_done`.
 +
++## Российский вариант без Google (бесплатно, без своего сервера)
++Статистика и контакты делятся на два российских сервиса.
++
++**Статистика: Яндекс Метрика.** Цель `quiz_done` отправляет тему и рекомендованный формат как параметры визита без имён и контактов. Они видны в отчёте по параметрам визитов, который можно выгрузить в таблицу. Номер счётчика указывается в `METRIKA_ID`.
++
++**Контакты: Яндекс Формы** (для личного использования бесплатны, данные хранятся в России):
++1. Создайте форму: «Имя», «Телефон или Telegram для связи», обязательная галочка согласия со ссылкой на политику, а также короткие текстовые поля «Тема», «Где ощущается», «Как давно», «Насколько мешает», «Чего ждёт», «Формат встреч», «Рекомендовано», «Источник».
++2. Для каждого поля откройте настройку предзаполнения и скопируйте идентификатор вопроса ([справка Яндекса](https://yandex.ru/support/forms/ru/pre-fill)).
++3. Адрес формы вставьте в `CONTACT_FORM_URL`, идентификаторы в `CONTACT_FORM_FIELDS`, например `{ topic: 'идентификатор', meet: 'идентификатор', recommend: 'идентификатор', src: 'идентификатор' }`. Ключи: `topic`, `area`, `duration`, `interference`, `need`, `meet`, `recommend`, `src`.
++4. Ответы приходят на почту или выгружаются файлом на Яндекс Диск, а там открываются как таблица ([обзор сервиса](https://yandex.ru/support/forms/ru/overview)).
++
++После этого под результатом появляется кнопка «Оставить контакт», она открывает форму в новой вкладке с подставленными ответами. Отправляет её сам человек, поэтому скрытой передачи данных нет. Минус: на один шаг больше, чем во встроенной форме, и конверсия в контакт ниже.
++
++**Третий вариант: Yandex Cloud Functions.** Первый миллион вызовов функции в месяц [бесплатен](https://yandex.cloud/ru-kz/services/functions) (нужен платёжный аккаунт). Функция принимает те же JSON-запросы, что и скрипт выше, и пишет их в базу. Подходит, если захотите свой сервер, но сложнее: нужны код, база и способ показать данные Ольге.
++
 +## Что стоит знать
 +- Номер прохождения создаётся заново при каждом «Пройти заново», поэтому один человек, прошедший подбор дважды, попадёт в статистику дважды.
 +- Ответ веб-приложения браузер не отдаёт сайту (так работает Apps Script). «Отправлено» значит «запрос ушёл без сетевой ошибки». Проверяйте результат в самой таблице.
@@ -861,10 +1020,10 @@ index 0000000..3025f99
 +- [ ] Принято решение, где хранятся контакты (Google или российский сервис)
 +- [ ] Тестовое прохождение: строка появилась, контакт дописался в ту же строку
 diff --git a/index.html b/index.html
-index 62739a5..ee1c604 100644
+index 62739a5..2c8c119 100644
 --- a/index.html
 +++ b/index.html
-@@ -4,20 +4,21 @@
+@@ -4,20 +4,22 @@
  <meta charset="utf-8">
  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
  <title>Ольга Охлопкова — психолог в Якутске</title>
@@ -882,7 +1041,8 @@ index 62739a5..ee1c604 100644
  <link rel="stylesheet" href="assets/css/styles.css">
 -<script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"Ольга Охлопкова — психолог","description":"Индивидуальные психологические консультации очно и онлайн","url":"https://steelykt.github.io/psychologist-site/","image":"https://steelykt.github.io/psychologist-site/assets/img/og.jpg","areaServed":"Якутск","address":{"@type":"PostalAddress","addressLocality":"Якутск","addressCountry":"RU"},"priceRange":"от 3000 ₽","sameAs":["https://t.me/olyabud","https://www.instagram.com/olga.okhlopkova.bud"]}</script>
 +<noscript><style>.rv{opacity:1;transform:none}</style></noscript>
-+<script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"Ольга Охлопкова — психолог","description":"Индивидуальные психологические консультации очно и онлайн","url":"https://steelykt.github.io/psychologist-site/","image":"https://steelykt.github.io/psychologist-site/assets/img/og.jpg","areaServed":"Якутск","address":{"@type":"PostalAddress","addressLocality":"Якутск","addressCountry":"RU"},"priceRange":"от 2500 ₽","sameAs":["https://t.me/olyabud","https://www.instagram.com/olga.okhlopkova.bud","https://vk.ru/byolgaokhlopkova"]}</script>
++<script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"Ольга Охлопкова — психолог","description":"Индивидуальные психологические консультации очно и онлайн","url":"https://steelykt.github.io/psychologist-site/","image":"https://steelykt.github.io/psychologist-site/assets/img/og.jpg","areaServed":"Якутск","address":{"@type":"PostalAddress","addressLocality":"Якутск","addressCountry":"RU"},"priceRange":"от 2500 ₽","sameAs":["https://t.me/olyabud","https://www.instagram.com/olga.okhlopkova.bud","https://vk.ru/byolgaokhlopkova","https://max.ru/u/f9LHodD0cOLHAd9Jivl6wAX8x4Xj52RtUhsaVlxgNWQnUhm8Ueri8YgKtgk"]}</script>
++<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Как проходит первая встреча?","acceptedAnswer":{"@type":"Answer","text":"Знакомимся, обсуждаем ваш запрос и договариваемся о формате. Никаких обязательств."}},{"@type":"Question","name":"Чем КПТ отличается от обычного разговора?","acceptedAnswer":{"@type":"Answer","text":"КПТ — когнитивно-поведенческая терапия. Это работа с тем, что происходит у вас в голове, и с тем, как это влияет на вас и ваши поступки. На встрече мы разбираем то, что вас беспокоит, и ищем другие способы справляться. Это не просто разговор, а совместная работа с конкретной ситуацией."}},{"@type":"Question","name":"Сколько длится встреча и сколько она стоит?","acceptedAnswer":{"@type":"Answer","text":"Разовая консультация идёт не меньше часа, а сколько точно, зависит от вашего запроса (до 3 часов), и стоит от 3000 ₽. В серии каждая встреча идёт 50 минут и стоит от 2500 ₽; число встреч определяем вместе. Всё обсуждаем заранее."}},{"@type":"Question","name":"Как записаться?","acceptedAnswer":{"@type":"Answer","text":"Напишите в Telegram или позвоните. Коротко расскажите, с чем хотите прийти, и мы подберём время. Подробности не нужны."}},{"@type":"Question","name":"Это конфиденциально?","acceptedAnswer":{"@type":"Answer","text":"Да. Всё, что обсуждается на встречах, остаётся между нами."}},{"@type":"Question","name":"Можно онлайн?","acceptedAnswer":{"@type":"Answer","text":"Да, встречи проходят в Якутске и онлайн."}}]}</script>
  </head>
  <body>
 -<a class="skip" href="#main">К содержимому</a><nav><div class="w"><b>Ольга Охлопкова</b><div class="l"><a href="#about">Обо мне</a><a href="#help">С чем помогаю</a><a href="#mood">Самопроверка</a><a href="#price">Стоимость</a><a href="#path">Путь</a><a href="#faq">Вопросы</a></div><div class="row"><button class="tg mn" id="mn" type="button" aria-label="Меню" aria-expanded="false" aria-controls="mp">☰</button><button class="tg" id="tg" aria-label="Сменить тему">◐</button><a class="btn" href="#contact" style="padding:12px 26px;min-height:48px">Записаться</a></div></div><div class="mp" id="mp" hidden><a href="#about">Обо мне</a><a href="#help">С чем помогаю</a><a href="#mood">Самопроверка</a><a href="#price">Стоимость</a><a href="#path">Путь</a><a href="#faq">Вопросы</a></div></nav>
@@ -890,19 +1050,19 @@ index 62739a5..ee1c604 100644
  
  <main id="main">
  <section class="w hero">
-@@ -25,9 +26,9 @@
+@@ -25,9 +27,9 @@
  <div class="eyebrow">Психолог · Якутск · онлайн и очно</div>
  <h1>Пространство, где можно выдохнуть</h1>
  <p>Помогаю взрослым и родителям разобраться в чувствах, снизить тревогу и вернуть опору. Бережно, без осуждения и в вашем темпе.</p>
 -<div class="row"><a class="btn" href="#contact">Записаться на встречу</a></div><div class="chips"><span>Магистр психологии</span><span>Очно и онлайн</span><span>От 3000 ₽ за сеанс</span></div>
-+<div class="row"><a class="btn" href="#contact">Записаться на встречу</a></div><div class="chips"><span>Магистр психологии</span><span>КПТ</span><span>Очно и онлайн</span><span>От 2500 ₽ за встречу</span></div>
++<div class="row"><a class="btn" href="#contact">Записаться на встречу</a></div><div class="chips"><span>Магистр психологии</span><span>КПТ</span><span>От 2500 ₽ за встречу</span></div>
  </div>
 -<div><div class="ph" id="ph"><div class="rg" aria-hidden="true"><i class="r r1"></i><i class="r r2"></i><i class="r r3"></i></div><img src="assets/img/hero-portrait.jpg" alt="Ольга Охлопкова, психолог" width="600" height="750" fetchpriority="high" decoding="async"></div><div class="bx"><div class="bl" id="bl" aria-live="polite">Хотите выдохнуть?</div><div class="bn" id="bn" aria-hidden="true"></div><div class="bs" id="bs">Минута дыхания: вдох 4 секунды, пауза, выдох 6</div><button type="button" class="btn o" id="bgo">Подышать вместе</button></div></div>
 +<div><div class="ph" id="ph"><div class="rg" aria-hidden="true"><i class="r r1"></i><i class="r r2"></i><i class="r r3"></i></div><img src="assets/img/hero-portrait.jpg" alt="Ольга Охлопкова, психолог" width="600" height="750" fetchpriority="high" decoding="async"></div><div class="bx"><div class="bl" id="bl" aria-live="polite">Хотите выдохнуть?</div><div class="bn" id="bn" aria-hidden="true">4 · 2 · 6</div><div class="bs" id="bs">Вдох, пауза и выдох в секундах. Меньше минуты.</div><div class="row bb"><button type="button" class="btn o" id="bgo">Подышать вместе</button><a class="btn" id="bmood" href="#mood" hidden>Подобрать формат</a></div></div></div>
  </section>
  
  <section id="about" class="alt"><div class="w rv ab"><figure class="fg"><img loading="lazy" src="assets/img/about-mother-son.jpg" alt="Ольга с сыном на кухне" width="640" height="800" decoding="async"><figcaption>Психолог, мама и человек, который умеет слушать</figcaption></figure><div>
-@@ -43,12 +44,15 @@
+@@ -43,41 +45,48 @@
  <div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14"/><path d="M5 19c3-4 6-6 9-8"/></svg></div><h3>Тревога и стресс</h3><p>Научимся замечать напряжение и возвращать себе спокойствие.</p></div>
  <div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.600-7 10-7 10z"/></svg></div><h3>Родительство</h3><p>Выгорание, чувство вины, отношения с ребёнком и в паре.</p></div>
  <div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.500 8.500l-2 5-5 2 2-5z"/></svg></div><h3>Жизненные перемены</h3><p>Смена работы, роли, города, поиск своего направления.</p></div>
@@ -921,7 +1081,11 @@ index 62739a5..ee1c604 100644
  <section id="principles" class="alt"><div class="w rv"><div class="eyebrow">Принципы работы</div><h2>На чём строится наша работа</h2><div class="cards c4"><div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div><h3>Конфиденциальность</h3><p>Всё, что обсуждается на встречах, остаётся между нами.</p></div><div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.500 14a4.500 4.500 0 0 0 7 0"/><path d="M9 9.500h.01M15 9.500h.01"/></svg></div><h3>Без осуждения</h3><p>Можно говорить о том, о чём страшно или неловко.</p></div><div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h3>Ваш темп</h3><p>Идём так быстро, как вам комфортно, и вместе ставим цели.</p></div><div class="card"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z"/></svg></div><h3>Уважение к границам</h3><p>Вы решаете, о чём говорить и что менять в своей жизни.</p></div></div></div></section>
  
  <section id="path" class="w rv">
-@@ -59,25 +63,29 @@
+ <div class="eyebrow">Путь</div><h2>Образование и опыт</h2>
+ <ul class="tl">
+-<li><small>СВФУ</small><h3>Магистр, психолого-педагогическое образование</h3></li>
++<li><small>СВФУ</small><h3>Магистр психологии, диплом с отличием</h3></li>
+ <li><small>Дополнительно</small><h3>Учитель английского (красный диплом) и экономист: финансы и кредит</h3></li>
  
  <li><small>Сбербанк</small><h3>Работа с клиентами и командой</h3></li>
  <li><small>Предпринимательство</small><h3>ИП: работа с людьми, организация и проведение клубов, поездок и мероприятий</h3></li>
@@ -944,14 +1108,14 @@ index 62739a5..ee1c604 100644
 -<p style="color:var(--mute);max-width:32em;margin:0 auto 26px">Напишите мне, и мы подберём удобное время.</p>
 -<div class="row" style="justify-content:center"><a class="btn" href="https://t.me/olyabud" rel="noopener">Написать в Telegram</a><a class="btn o" href="https://wa.me/79644156843" rel="noopener">WhatsApp</a><a class="btn o" href="https://www.instagram.com/olga.okhlopkova.bud" rel="noopener">Instagram</a></div>
 +<p style="color:var(--mute);max-width:32em;margin:0 auto 26px">Напишите или позвоните, и мы подберём удобное время.</p>
-+<div class="row" style="justify-content:center"><a class="btn" href="https://t.me/olyabud" rel="noopener" data-goal="tg">Написать в Telegram</a><a class="btn o" href="#" rel="noopener" data-max data-goal="max" hidden>MAX</a><a class="btn o" href="#" rel="noopener" data-vk data-goal="vk" hidden>VK</a><a class="btn o" href="tel:+79644156843" data-goal="tel">Позвонить</a><a class="btn o" href="https://wa.me/79644156843" rel="noopener" data-goal="wa">WhatsApp*</a><a class="btn o" href="https://www.instagram.com/olga.okhlopkova.bud" rel="noopener" data-goal="ig">Instagram*</a></div>
++<div class="row" style="justify-content:center"><a class="btn o" href="#" rel="noopener" data-max data-goal="max" hidden>Написать в MAX</a><a class="btn" href="https://t.me/olyabud" rel="noopener" data-tg data-goal="tg">Написать в Telegram</a><a class="btn o" href="tel:+79644156843" data-goal="tel">Позвонить</a><a class="btn o" href="#" rel="noopener" data-vk data-goal="vk" hidden>VK</a><a class="btn o" href="https://wa.me/79644156843" rel="noopener" data-goal="wa">WhatsApp*</a><a class="btn o" href="https://www.instagram.com/olga.okhlopkova.bud" rel="noopener" data-goal="ig">Instagram*</a></div>
 +<p class="qn" style="margin-top:18px">* Деятельность компании Meta (Instagram, WhatsApp) запрещена в России, компания признана экстремистской организацией.</p>
  </section>
  </main>
  <footer><div class="w">© Ольга Охлопкова. Психолог, Якутск. Сайт не заменяет медицинскую помощь; в кризисной ситуации звоните 112 или обратитесь в местную службу экстренной психологической помощи.</div></footer>
  
 -<div class="mb"><a class="btn" href="https://t.me/olyabud" rel="noopener">Telegram</a><a class="btn o" href="https://wa.me/79644156843" rel="noopener">WhatsApp</a></div>
-+<div class="mb"><a class="btn" href="https://t.me/olyabud" rel="noopener" data-goal="tg_bar">Telegram</a><a class="btn o" href="tel:+79644156843" data-goal="tel_bar">Позвонить</a><a class="btn o" href="https://wa.me/79644156843" rel="noopener" data-goal="wa_bar" data-nomax>WhatsApp*</a><a class="btn o" href="#" rel="noopener" data-max data-goal="max_bar" hidden>MAX</a></div>
++<div class="mb"><a class="btn o" href="#" rel="noopener" data-max data-goal="max_bar" hidden>MAX</a><a class="btn" href="https://t.me/olyabud" rel="noopener" data-tg data-goal="tg_bar">Telegram</a><a class="btn o" href="tel:+79644156843" data-goal="tel_bar">Позвонить</a><a class="btn o" href="https://wa.me/79644156843" rel="noopener" data-goal="wa_bar" data-nomax>WhatsApp*</a></div>
  <script src="assets/js/main.js" defer></script>
  </body>
  </html>

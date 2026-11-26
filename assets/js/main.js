@@ -4,9 +4,11 @@
 
 /* ---------- Настройки: меняются только здесь ---------- */
 var CONFIG = {
-  // Ссылка на профиль в MAX. Пока пусто, кнопка MAX скрыта,
+  // Ссылка на профиль в MAX. Пустое значение скрывает кнопку MAX,
   // а в нижней панели на телефоне остаётся WhatsApp.
-  MAX_URL: '',
+  MAX_URL: 'https://max.ru/u/f9LHodD0cOLHAd9Jivl6wAX8x4Xj52RtUhsaVlxgNWQnUhm8Ueri8YgKtgk',
+  // Главный канал связи: 'max' или 'tg'. Главный выделяется заливкой и стоит первым.
+  PRIMARY: 'max',
   // Ссылка на страницу в VK. Пока пусто, кнопка VK скрыта.
   VK_URL: 'https://vk.ru/byolgaokhlopkova',
   // Номер счётчика Яндекс Метрики. 0 — цели никуда не отправляются.
@@ -17,7 +19,13 @@ var CONFIG = {
   // PRIVACY_URL: страница политики. Заполнено вместе с адресом — под результатом появляется
   // необязательная форма «Оставить контакт», и контакт добавляется к той же строке статистики.
   RESULTS_ENDPOINT: '',
-  PRIVACY_URL: ''
+  PRIVACY_URL: '',
+  // Российский вариант без своего сервера: форма в Яндекс Формах. Под результатом появится
+  // кнопка «Оставить контакт», она открывает форму с уже подставленными ответами.
+  // CONTACT_FORM_FIELDS: какому вопросу формы соответствует каждый ответ (идентификаторы
+  // из настройки предзаполнения в Яндекс Формах). Пустые поля пропускаются.
+  CONTACT_FORM_URL: '',
+  CONTACT_FORM_FIELDS: { topic: '', area: '', duration: '', interference: '', need: '', meet: '', recommend: '', src: '' }
 };
 
 var HT = document.documentElement;
@@ -57,6 +65,11 @@ document.addEventListener('click', function (e) {
     show('data-max', CONFIG.MAX_URL);
     // WhatsApp в нижней панели на телефоне уступает место MAX
     [].forEach.call(document.querySelectorAll('[data-nomax]'), function (a) { a.hidden = true; });
+    if (CONFIG.PRIMARY === 'max') {
+      // MAX главный: заливка у него, Telegram становится вторым (контурным)
+      [].forEach.call(document.querySelectorAll('[data-max]'), function (a) { a.classList.remove('o'); });
+      [].forEach.call(document.querySelectorAll('[data-tg]'), function (a) { a.classList.add('o'); });
+    }
   }
   if (CONFIG.VK_URL) show('data-vk', CONFIG.VK_URL);
 })();
@@ -279,7 +292,7 @@ function drawResult() {
   var head = el('div', 'qh');
   head.tabIndex = -1;
   head.appendChild(el('div', 'qn', 'Ваш результат'));
-  head.appendChild(el('h3', '', topic[0]));
+  head.appendChild(el('h3', 'res', topic[0]));
   qz.appendChild(head);
 
   var p = el('p', '', topic[1]);
@@ -298,11 +311,18 @@ function drawResult() {
     qz.appendChild(el('p', 'qn cr hv', 'Если сейчас очень тяжело, не ждите записи: звоните 112 или обращайтесь в местную службу экстренной психологической помощи.'));
   }
 
-  // Сообщение в Telegram уже написано: диалог не начинается с нуля
+  // Готовое сообщение: диалог не начинается с нуля
   var text = 'Здравствуйте! Хочу обсудить запись. Тема: ' + topic[0] + '. Подойдёт: ' + sum.recommend.toLowerCase() + '. Формат: ' + sum.meet.toLowerCase() + '.';
+  var maxFirst = !!CONFIG.MAX_URL && CONFIG.PRIMARY === 'max';
   var row = el('div', 'row');
-  var a = el('a', 'btn', 'Написать в Telegram');
-  a.href = 'https://t.me/olyabud?text=' + encodeURIComponent(text);
+  var a;
+  if (maxFirst) {
+    a = el('a', 'btn', 'Написать в MAX');
+    a.href = CONFIG.MAX_URL;
+  } else {
+    a = el('a', 'btn', 'Написать в Telegram');
+    a.href = 'https://t.me/olyabud?text=' + encodeURIComponent(text);
+  }
   a.rel = 'noopener';
   a.setAttribute('data-goal', 'quiz_cta');
   var more = el('a', 'btn o', 'Другие способы связи');
@@ -311,7 +331,11 @@ function drawResult() {
   row.appendChild(more);
   qz.appendChild(row);
 
+  // В MAX нет проверенной ссылки с готовым текстом, поэтому сообщение показываем и даём скопировать
+  if (maxFirst) qz.appendChild(buildMessageBox(text));
+
   if (contactEnabled() && rid) qz.appendChild(buildSendForm(sum, rid));
+  else if (CONFIG.CONTACT_FORM_URL) qz.appendChild(buildFormLink(sum, rid));
 
   var again = el('button', 'lk', 'Пройти заново');
   again.type = 'button';
@@ -321,6 +345,62 @@ function drawResult() {
   var note = 'Это не диагноз и не заменяет консультацию специалиста.';
   if (statsEnabled()) note += ' Ваши ответы без имени и контактов учтены в обезличенной статистике.';
   qz.appendChild(el('p', 'qn', note));
+}
+
+/* Готовое сообщение с кнопкой «Скопировать» (для мессенджеров без ссылки с текстом) */
+function buildMessageBox(text) {
+  var box = el('div', 'msg');
+  box.appendChild(el('span', 'qn', 'Готовое сообщение, его можно вставить в чат:'));
+  box.appendChild(el('p', '', text));
+  var btn = el('button', 'lk', 'Скопировать');
+  btn.type = 'button';
+  var st = el('span', 'qn');
+  st.setAttribute('role', 'status');
+  btn.onclick = function () {
+    function done() { st.textContent = ' Скопировано'; }
+    function fail() { st.textContent = ' Не удалось, выделите текст и скопируйте вручную'; }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, fail);
+    } else {
+      var ta = el('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      if (ok) done(); else fail();
+    }
+  };
+  box.appendChild(btn);
+  box.appendChild(st);
+  return box;
+}
+
+/* Контакт через Яндекс Формы: форма открывается в новой вкладке с подставленными ответами,
+   отправляет её сам человек (Формы хранят данные в России). */
+function buildFormLink(sum, rid) {
+  var box = el('div', 'fm');
+  box.appendChild(el('b', '', 'Оставить контакт'));
+  box.appendChild(el('span', 'qn', 'Необязательно. Откроется форма Яндекса: ответы подбора уже подставлены, а отправите её только вы сами.'));
+  var params = [];
+  var map = CONFIG.CONTACT_FORM_FIELDS || {};
+  var data = {};
+  Object.keys(sum).forEach(function (k) { data[k] = sum[k]; });
+  data.src = location.search.replace(/^\?/, '').slice(0, 200);
+  Object.keys(map).forEach(function (k) {
+    if (map[k] && data[k]) params.push(encodeURIComponent(map[k]) + '=' + encodeURIComponent(data[k]));
+  });
+  var url = CONFIG.CONTACT_FORM_URL + (params.length ? (CONFIG.CONTACT_FORM_URL.indexOf('?') < 0 ? '?' : '&') + params.join('&') : '');
+  var a = el('a', 'btn o', 'Оставить контакт');
+  a.href = url;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  a.setAttribute('data-goal', 'quiz_form');
+  box.appendChild(a);
+  return box;
 }
 
 /* Необязательный контакт. Строка статистики уже отправлена без имени; здесь человек

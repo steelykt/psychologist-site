@@ -47,7 +47,7 @@ body{overflow-x:clip}
 .card{background:var(--surf);border:1px solid var(--line);border-radius:22px;padding:28px}
 .card p{color:var(--mute);margin:.6em 0 0}
 .card h3{overflow-wrap:break-word;hyphens:auto}
-@media(min-width:1001px){.c4 .card h3{min-height:2.2em}
+@media(min-width:1001px){.c4 .card h3{min-height:2.2em;font-size:1.32rem}
 }
 .ic{width:46px;height:46px;border-radius:14px;background:var(--soft);display:grid;place-items:center;font-size:1.4rem;margin-bottom:14px}
 .alt{background:var(--soft)}
@@ -158,3 +158,6 @@ nav .row .btn{display:none}
 .fm .btn{justify-self:start}
 .hp{position:absolute;left:-9999px}
 .hv{color:var(--ink);font-weight:700}
+.qz h3.res{font-size:1.75rem;line-height:1.15}
+.msg{margin:16px 0 0;padding:14px 16px;border:1.5px dashed var(--line);border-radius:14px}
+.msg p{margin:.4em 0 .2em;color:var(--ink);font-size:.95rem}
